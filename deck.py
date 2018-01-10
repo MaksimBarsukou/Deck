@@ -13,7 +13,7 @@ random_deck = random.choice(deck)
 trump = deck.index(random_deck)
 #Удаляем по индексу элемент для переноса в конец списка.
 deck.pop(trump)
-#Добавляем в конец списка из Trump вырезанный элемент.
+#Добавляем в конец списка из trump вырезанный элемент.
 deck.append(random_deck)
 #Выводим козырь.
 print("Козырь обьявлен: ",random_deck)
