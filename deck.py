@@ -26,16 +26,26 @@ print("Козырь обьявлен: ",random_deck)
 
 #Раздаем карты.
 hand = deck[0:6]
-#print("Ваши карты:",hand)
 for elem in hand:
     print(elem, end=' . ')
 deck = deck[6:]
 print("\nОсталось карт: ", len(deck))
 #Цикл 
-while deck != 0:
+while deck:
     #Запрос на сброс карт
-    s = list(input("\n\nВыберите номера 3 карт для сброса: ").split(','))
-#Проверка на ввод цифр
+    g = input("\n\nВыберите номера 3 карт для сброса: ")
+    #Проверка на ввод букв
+    if g.isalpha():
+        print("введина буква")
+        continue
+    #Проверка на пустую строку
+    if not g:
+        print("ты ничего не ввел")
+        continue
+    #Переделываем строку в список
+    s = g.split(',')
+    print(len(s))
+    #Проверка на ввод цифр
     s1 = []
     for x in s:
         if x.isdigit():
