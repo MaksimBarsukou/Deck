@@ -50,16 +50,20 @@ while deck:
     for x in s:
         if x.isdigit():
             s1.append(int(x)-1)
-#Сортировка и удаление карт
+    if s1 > 6:
+        print("выход за пределы")
+        continue
+    print(s1)
+     #Сортировка и удаление карт
     for n in sorted(s1, reverse=True):
         hand.pop(n)
-#Подсчет  количества оставшихся карт
-    count_card = len(s)
-#Пополнение руки новыми картами
+    #Подсчет  количества оставшихся карт
+    count_card = len(s1)
+    #Пополнение руки новыми картами
     hand += deck[:count_card]
-#Уменьшение колоды по количеству отданых карт в руку
+    #Уменьшение колоды по количеству отданых карт в руку
     deck = deck[count_card:]
-#Переделываем список в строку
+    #Переделываем список в строку
     for elem in hand:
         print(elem, end=' . ')
     print("\nОсталось карт: ", len(deck))
