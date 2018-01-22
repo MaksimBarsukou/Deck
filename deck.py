@@ -49,11 +49,10 @@ while deck:
     for x in s:
         if x.isdigit():
             s1.append(int(x)-1)
-    for x in s1:
-        if x > 6 and x < 0:
-            print("выход за пределы")
-            continue
-     #Сортировка и удаление карт
+    for n in s1:
+        if n >= 0 and n <= 5:
+            print("Выход за пределы")
+    #Сортировка и удаление карт
     for n in sorted(s1, reverse=True):
         hand.pop(n)
     #Подсчет  количества оставшихся карт
