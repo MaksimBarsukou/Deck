@@ -44,16 +44,15 @@ while deck:
         continue
     #Переделываем строку в список
     s = g.split(',')
-    print(len(s))
     #Проверка на ввод цифр
     s1 = []
     for x in s:
         if x.isdigit():
             s1.append(int(x)-1)
-    if s1 > 6:
-        print("выход за пределы")
-        continue
-    print(s1)
+    for x in s1:
+        if x > 6 and x < 0:
+            print("выход за пределы")
+            continue
      #Сортировка и удаление карт
     for n in sorted(s1, reverse=True):
         hand.pop(n)
