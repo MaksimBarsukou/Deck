@@ -22,7 +22,7 @@ deck.pop(trump)
 deck.append(random_deck)
 
 #Выводим козырь.
-print("Козырь обьявлен: ",random_deck)
+print("Козырь объявлен: ",random_deck)
 
 #Раздаем карты.
 hand = deck[0:6]
@@ -36,7 +36,7 @@ while deck:
     g = input("\n\nВыберите номера 3 карт для сброса: ")
     #Проверка на ввод букв
     if g.isalpha():
-        print("введина буква")
+        print("введена буква")
         continue
     #Проверка на пустую строку
     if not g:
