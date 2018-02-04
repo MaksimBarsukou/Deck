@@ -1,67 +1,94 @@
-#Подключаем модуль рандома.
-import random 
-#Создаем список карт.
-deck = ["Clubs Ace", "Clubs 2", "Clubs 3", "Clubs 4", "Clubs 5", "Clubs 6", "Clubs 7", "Clubs 8", "Clubs 9", "Clubs 10", "Clubs Jack", "Clubs Quenn", "Clubs King",
-       "Diamonds Ace", "Diamonds 2", "Diamonds 3", "Diamonds 4", "Diamonds 5", "Diamonds 6", "Diamonds 7", "Diamonds 8", "Diamonds 9", "Diamonds 10", "Diamonds Jack", "Diamonds Quenn", "Diamonds King",
-       "Hearts Ace", "Hearts 2", "Hearts 3", "Hearts 4", "Hearts 5", "Hearts 6", "Hearts 7", "Hearts 8", "Hearts 9", "Hearts 10", "Hearts Jack", "Hearts Quenn", "Hearts King",
-       "Spades Ace", "Spades 2", "Spades 3", "Spades 4", "Spades 5", "Spades 6", "Spades 7", "Spades 8", "Spades 9", "Spades 10", "Spades Jack", "Spades Quenn", "Spades King"]
-print("Всего карт в колоде: ",len(deck))
-#Перемешиваем колоду.
-random.shuffle(deck)
+# Подключаем модуль рандома.
+import random
 
-#Возвращаем случайный элемент списка, который будет козырем.
+# Создаем список карт.
+
+
+RANKS = ['6', '7', '8', '9', '10', 'J', 'Q', 'K', "A"]
+SUITS = ['♠', '♦', '♥', '♣']
+MAX_NUMBER_CARDS = 6
+MIN_NUMBER_CARDS = 0
+deck = [r + s for r in RANKS for s in SUITS]
+print(deck)
+
+print("Всего карт в колоде: ", len(deck))
+# Перемешиваем колоду.
+# random.shuffle(deck)
+
+# Возвращаем случайный элемент списка, который будет козырем.
 random_deck = random.choice(deck)
 
-#Определяем индекс козыря.
+# Определяем индекс козыря.
 trump = deck.index(random_deck)
 
-#Удаляем по индексу элемент для переноса в конец списка.
+# Удаляем по индексу элемент для переноса в конец списка.
 deck.pop(trump)
 
-#Добавляем в конец списка из Trump вырезанный элемент.
+# Добавляем в конец списка из Trump вырезанный элемент.
 deck.append(random_deck)
 
-#Выводим козырь.
-print("Козырь объявлен: ",random_deck)
+# Выводим козырь.
+print("Козырь объявлен: ", random_deck)
 
-#Раздаем карты.
+# First distribution
 hand = deck[0:6]
 for elem in hand:
-    print(elem, end=' . ')
+    print(elem, end='.')
 deck = deck[6:]
-print("\nОсталось карт: ", len(deck))
-#Цикл 
+# Second
+hand_ii = deck[0:6]
+deck = deck[6:]
+# firs move ii
+print("\nКомпьютер ходит: ", min(hand_ii))
+
+
+def fill_hand(deck_in, hand_in, count_card_in):
+    # немного не верно так делать, но позже переделаешь
+    # Пополнение руки новыми картами
+    new_hand = hand_in + deck_in[:count_card_in]
+    # Переделываем список в строку
+    new_deck = deck_in[count_card_in:]
+    return new_deck, new_hand
+
+
+def check_input_info(input_str):
+    # Переделываем строку в список
+    if not input_str:
+        print("Ты ничего не ввел")
+        return False
+    # Переделываем строку в список
+
+    row_values_list = input_str.split(',')
+    res_list = []
+    try:
+        for raw_value in row_values_list:
+            number_card_raw = int(raw_value)
+            if MAX_NUMBER_CARDS < number_card_raw or MIN_NUMBER_CARDS > number_card_raw:
+                raise IndexError
+            number_card_raw -= 1
+            res_list.append(number_card_raw)
+        return res_list
+    except IndexError:
+        print("Выход за пределы")
+        return False
+    except ValueError:
+        print("Введена буква")
+        return False
+
+
 while deck:
-    #Запрос на сброс карт
-    g = input("\n\nВыберите номера 3 карт для сброса: ")
-    #Проверка на ввод букв
-    if g.isalpha():
-        print("введена буква")
+    # Запрос на сброс карт
+    g = input("\n\nВыберите номера карт от 1 до 6 через , для сброса: ")
+    numbers_card_del = check_input_info(g)
+    if not numbers_card_del:
         continue
-    #Проверка на пустую строку
-    if not g:
-        print("ты ничего не ввел")
-        continue
-    #Переделываем строку в список
-    s = g.split(',')
-    #Проверка на ввод цифр
-    s1 = []
-    for x in s:
-        if x.isdigit():
-            s1.append(int(x)-1)
-    for n in s1:
-        if n >= 0 and n <= 5:
-            print("Выход за пределы")
-    #Сортировка и удаление карт
-    for n in sorted(s1, reverse=True):
+    # Сортировка и удаление карт
+    for n in sorted(numbers_card_del, reverse=True):
         hand.pop(n)
-    #Подсчет  количества оставшихся карт
-    count_card = len(s1)
-    #Пополнение руки новыми картами
-    hand += deck[:count_card]
-    #Уменьшение колоды по количеству отданых карт в руку
-    deck = deck[count_card:]
-    #Переделываем список в строку
+
+    count_card = len(numbers_card_del)
+
+    deck, hand = fill_hand(deck, hand, count_card)
     for elem in hand:
         print(elem, end=' . ')
     print("\nОсталось карт: ", len(deck))
