@@ -6,6 +6,7 @@ import random
 
 RANKS = ['6', '7', '8', '9', '10', 'J', 'Q', 'K', "A"]
 SUITS = ['♠', '♦', '♥', '♣']
+WEIGHT = {"6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "J": 11, "Q": 12, "K": 13, "A": 14}
 MAX_NUMBER_CARDS = 6
 MIN_NUMBER_CARDS = 0
 deck = [r + s for r in RANKS for s in SUITS]
@@ -18,7 +19,7 @@ print("Всего карт в колоде: ", len(deck))
 # Возвращаем случайный элемент списка, который будет козырем.
 random_deck = random.choice(deck)
 
-# Определяем индекс козыря.
+# Определяем индекс козыря.Default task
 trump = deck.index(random_deck)
 
 # Удаляем по индексу элемент для переноса в конец списка.
@@ -39,7 +40,7 @@ deck = deck[6:]
 hand_ii = deck[0:6]
 deck = deck[6:]
 # firs move ii
-print("\nКомпьютер ходит: ", min(hand_ii))
+#print("\nКомпьютер ходит: ", min(hand_ii))
 
 
 def fill_hand(deck_in, hand_in, count_card_in):
@@ -85,9 +86,13 @@ while deck:
     # Сортировка и удаление карт
     for n in sorted(numbers_card_del, reverse=True):
         hand.pop(n)
+    print("Ложу:",hand.pop(n))
+    Y = "y"
+    answer = str(input("Отбой y:"))
+    if answer == Y:
+        print("Отбой")
 
     count_card = len(numbers_card_del)
-
     deck, hand = fill_hand(deck, hand, count_card)
     for elem in hand:
         print(elem, end=' . ')
