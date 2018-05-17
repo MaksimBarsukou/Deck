@@ -20,7 +20,7 @@ class Hand(Deck):
     min_size_hand = 0
     max_size_hand = 6
     hand = Deck.stack[0:6]  # cut deck for first distribution
-    #Deck.stack = Deck.stack[6:]
+    Deck.stack = Deck.stack[6:]
 
 
 print(Hand.hand)
