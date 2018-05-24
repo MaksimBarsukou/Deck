@@ -31,6 +31,7 @@ class Deck(object):
 
     def take_card(self):
         card = self.deck[:6]
+        self.deck = self.deck[6:]
         return card
 
 
@@ -41,3 +42,5 @@ print(d.deck)
 print(d.tramp_card())
 print(d.__len__())
 print(d.take_card())
+print(d.deck)
+print(d.__len__())
