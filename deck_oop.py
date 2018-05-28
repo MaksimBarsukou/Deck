@@ -1,7 +1,7 @@
 import random
 
 
-class Card(object):
+class Card:
     def __init__(self, suit, rank, weight):
         self.suit = suit
         self.rank = rank
@@ -11,7 +11,8 @@ class Card(object):
         s = '{}{}:{}'.format(self.rank, self.suit, self.weight)
         return s
 
-class Deck(object):
+
+class Deck:
     def __init__(self):
         self.RANK = ['6', '7', '8', '9', '10', 'J', 'Q', 'K', "A"]
         self.SUIT = ['♠', '♦', '♥', '♣']
@@ -22,12 +23,14 @@ class Deck(object):
                 self.deck.append(Card(rank, suit, self.WEIGHT[rank]))
         random.shuffle(self.deck)
 
-    def tramp_card(self):
+    def trump_card(self):
         trump_card = self.deck[-1]
         return trump_card
+    trump = property(trump_card)
 
-    def __len__(self):
+    def len_deck(self):
         return len(self.deck)
+    len = property(len_deck)
 
     def take_card(self):
         card = self.deck[:6]
@@ -35,12 +38,15 @@ class Deck(object):
         return card
 
 
+class Hand:
+    pass
 
 
 d = Deck()
+print()
 print(d.deck)
-print(d.tramp_card())
-print(d.__len__())
+print(d.trump)
+print(d.len)
 print(d.take_card())
 print(d.deck)
-print(d.__len__())
+print(d.len)
