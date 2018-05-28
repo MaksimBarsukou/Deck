@@ -24,17 +24,17 @@ class Deck:
         random.shuffle(self.deck)
 
     def trump_card(self):
-        trump_card = self.deck[-1]
-        return trump_card
+        card = self.deck[-1]
+        return card
     trump = property(trump_card)
 
     def len_deck(self):
         return len(self.deck)
-    len = property(len_deck)
+    size = property(len_deck)
 
-    def take_card(self):
-        card = self.deck[:6]
-        self.deck = self.deck[6:]
+    def take_card(self, numbers=6):
+        card = self.deck[:numbers]
+        self.deck = self.deck[numbers:]
         return card
 
 
@@ -43,10 +43,9 @@ class Hand:
 
 
 d = Deck()
-print()
 print(d.deck)
+print(d.size)
 print(d.trump)
-print(d.len)
 print(d.take_card())
 print(d.deck)
-print(d.len)
+print(d.size)
