@@ -23,14 +23,19 @@ class Deck:
                 self.deck.append(Card(rank, suit, self.WEIGHT[rank]))
         random.shuffle(self.deck)
 
+    @property
     def trump_card(self):
         card = self.deck[-1]
         return card
-    trump = property(trump_card)
 
+    @property
     def len_deck(self):
-        return len(self.deck)
-    size = property(len_deck)
+        size = len(self.deck)
+        return size
+
+    def trump_suit(self):
+        trump_suit = '{}'.format(d.trump_card.rank)
+        return trump_suit
 
     def take_card(self, numbers=6):
         card = self.deck[:numbers]
@@ -43,9 +48,8 @@ class Hand:
 
 
 d = Deck()
+print(d.trump_suit())
 print(d.deck)
-print(d.size)
-print(d.trump)
+print(d.len_deck)
 print(d.take_card())
-print(d.deck)
-print(d.size)
+print(d.trump_card)
