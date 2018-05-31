@@ -3,11 +3,13 @@ import random
 
 class Card:
     def __init__(self, suit, rank, weight):
+        """ The card class has three values, suit, rank, and card weight."""
         self.suit = suit
         self.rank = rank
         self.weight = weight
 
     def __repr__(self):
+        """Calls the function repr to obtain formatted strings"""
         s = '{}{}:{}'.format(self.rank, self.suit, self.weight)
         return s
 
@@ -35,6 +37,11 @@ class Deck:
 
     def trump_suit(self):
         trump_suit = '{}'.format(d.trump_card.rank)
+        for i in '{}'.format(self.deck):
+            if trump_suit in i:
+                print(i)
+
+
         return trump_suit
 
     def take_card(self, numbers=6):
