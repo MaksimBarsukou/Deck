@@ -2,7 +2,7 @@ import random
 
 
 class Card:
-    def __init__(self, suit, rank, weight):
+    def __init__(self, suit, rank, weight=None):
         """ The card class has three values, suit, rank, and card weight."""
         self.suit = suit
         self.rank = rank
@@ -10,8 +10,7 @@ class Card:
 
     def __repr__(self):
         """Calls the function repr to obtain formatted strings"""
-        s = '{}{}:{}'.format(self.rank, self.suit, self.weight)
-        return s
+        return '{}{}'.format(self.rank, self.suit)
 
 
 class Deck:
@@ -22,8 +21,19 @@ class Deck:
         self.deck = []
         for suit in self.SUIT:
             for rank in self.RANK:
-                self.deck.append(Card(rank, suit, self.WEIGHT[rank]))
+                self.deck.append(Card(suit, rank))
         random.shuffle(self.deck)
+        new_deck = []
+        for card in self.deck:
+            new_deck.append(get_card_with_weight(self.deck[-1], card))
+        self.deck = new_deck
+
+    def get_card_with_weight(self, trump_card, current_card):
+        if trump_card.suit == current_card.suit:
+            current_card.weight = self.WEIGHT[current_card.RANK] + 9
+            return current_card
+        current_card.weight = self.WEIGHT[current_card.RANK]
+        return current_card
 
     @property
     def trump_card(self):
@@ -40,8 +50,6 @@ class Deck:
         for i in '{}'.format(self.deck):
             if trump_suit in i:
                 print(i)
-
-
         return trump_suit
 
     def take_card(self, numbers=6):
