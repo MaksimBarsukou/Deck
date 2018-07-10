@@ -1,5 +1,8 @@
 import random
 
+MAX_NUMBER_CARDS = 6
+MIN_NUMBER_CARDS = 0
+
 
 class Card:
     def __init__(self, suit, rank, weight=None):
@@ -58,32 +61,29 @@ class Deck:
         return cards
 
 
-class Hand:
-    def __init__(self):
-        self.MAX_NUMBER_CARDS = 6
-        self.MIN_NUMBER_CARDS = 0
+class Hand(Deck):
 
     def get_card(self):
-        pass
+        hand_card = Deck.take_card(self, numbers=MAX_NUMBER_CARDS)
+        return hand_card
 
     def discard_card(self, hand_card):
-        discard = input("\n\nEnter card number from 1 to 6 for reset: ")
-        discard_card = self.check_input_info(discard)
+        number = input("\n\nEnter card number from 1 to 6 for reset: ")
+        discard_card = self.check_input_info(number)
     # Sorting and deleting
-        for n in sorted(discard_card, reverse=True):
-            hand_card.pop(n)
+        for x in discard_card:
+            hand_card.pop(x)
 
     def check_input_info(self, input_str):
         if not input_str:
             print("Do not enter anything.")
             return False
     # Redo the string in the list.
-        row_values_list = input_str.split(',')
         res_list = []
         try:
-            for raw_value in row_values_list:
+            for raw_value in input_str:
                 number_card_raw = int(raw_value)
-                if self.MAX_NUMBER_CARDS < number_card_raw or self.MIN_NUMBER_CARDS > number_card_raw:
+                if MAX_NUMBER_CARDS < number_card_raw or MIN_NUMBER_CARDS > number_card_raw:
                     raise IndexError
                 number_card_raw -= 1
                 res_list.append(number_card_raw)
@@ -103,3 +103,5 @@ print(d.len_deck)
 print(d.trump_card)
 print(d.take_card())
 print(h.get_card())
+print(d.len_deck)
+print(h.discard_card())
