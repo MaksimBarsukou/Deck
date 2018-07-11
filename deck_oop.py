@@ -16,6 +16,9 @@ class Card:
         return '{}{}'.format(self.rank, self.suit)
 
 
+# ----------------------------------------------------------------------------------------------------
+
+
 class Deck:
     def __init__(self):
         """Fill the self.deck using RANK, SUIT, WEIGHT and mix it.
@@ -61,39 +64,42 @@ class Deck:
         return cards
 
 
-class Hand(Deck):
+# --------------------------------------------------------------------------------------------------
 
-    def get_card(self):
-        hand_card = Deck.take_card(self, numbers=MAX_NUMBER_CARDS)
-        return hand_card
+
+class Hand:
+    def __init__(self):
+        self.player_hand = None
+        self.bot_hand = None
 
     def discard_card(self, hand_card):
-        number = input("\n\nEnter card number from 1 to 6 for reset: ")
-        discard_card = self.check_input_info(number)
-    # Sorting and deleting
+        discard_card = self.check_input_info()
+        # Sorting and deleting
         for x in discard_card:
             hand_card.pop(x)
 
-    def check_input_info(self, input_str):
-        if not input_str:
-            print("Do not enter anything.")
-            return False
-    # Redo the string in the list.
-        res_list = []
-        try:
-            for raw_value in input_str:
-                number_card_raw = int(raw_value)
-                if MAX_NUMBER_CARDS < number_card_raw or MIN_NUMBER_CARDS > number_card_raw:
-                    raise IndexError
-                number_card_raw -= 1
-                res_list.append(number_card_raw)
-            return res_list
-        except IndexError:
-            print("Out of range.")
-            return False
-        except ValueError:
-            print("You entered a letter.")
-            return False
+    def check_input_info(self):
+        while True:
+            try:
+                input_str = input("\n\nEnter card number from 1 to 6 for reset: ")
+                if not input_str:
+                    print("Do not enter anything.")
+                    continue
+                res_list = []
+                for raw_value in input_str:
+                    number_card_raw = int(raw_value)
+                    if MAX_NUMBER_CARDS < number_card_raw or MIN_NUMBER_CARDS > number_card_raw:
+                        raise IndexError
+                    number_card_raw -= 1
+                    res_list.append(number_card_raw)
+                return res_list
+                break
+            except IndexError:
+                print("Out of range.")
+                continue
+            except ValueError:
+                print("You entered a letter.")
+                continue
 
 
 d = Deck()
@@ -102,6 +108,5 @@ print(d.deck)
 print(d.len_deck)
 print(d.trump_card)
 print(d.take_card())
-print(h.get_card())
 print(d.len_deck)
-print(h.discard_card())
+print(h.check_input_info())
