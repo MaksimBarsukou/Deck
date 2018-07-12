@@ -93,13 +93,10 @@ class Hand:
                     number_card_raw -= 1
                     res_list.append(number_card_raw)
                 return res_list
-                break
             except IndexError:
                 print("Out of range.")
-                continue
             except ValueError:
                 print("You entered a letter.")
-                continue
 
 
 d = Deck()
