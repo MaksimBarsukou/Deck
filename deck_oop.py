@@ -56,7 +56,7 @@ class Deck:
         size = len(self.deck)
         return size
 
-    def take_card(self, numbers=6):
+    def take_card(self, numbers):
         """Fill the hand. a maximum of 6 cards.
         Make a cut through the list using the data from numbers, also update self.deck through a cut."""
         cards = self.deck[:numbers]
@@ -69,14 +69,26 @@ class Deck:
 
 class Hand:
     def __init__(self):
-        self.player_hand = None
-        self.bot_hand = None
+        self.hand = []
+        self.trump = Deck.trump_card
 
-    def discard_card(self, hand_card):
+    def check_trump(self, current_hand):
+        for card in current_hand:
+            if self.trump.trump_card.suit == card.suit:
+                weight_card = max(card.weight)
+                return weight_card
+
+    def card_replenishment(self):
+        len_hand = len(self.hand)
+        if len_hand < MAX_NUMBER_CARDS:
+            missing_cards = MAX_NUMBER_CARDS - len_hand
+            return missing_cards
+
+    def discard_card(self):
         discard_card = self.check_input_info()
         # Sorting and deleting
         for x in discard_card:
-            hand_card.pop(x)
+            self.hand.pop(x)
 
     def check_input_info(self):
         while True:
@@ -99,11 +111,53 @@ class Hand:
                 print("You entered a letter.")
 
 
+class Table:
+
+    def __init__(self):
+        self.deck = Deck()
+        self.my_hand = Hand()
+        self.bot_hand = Hand()
+
+    # def test(self):
+    #     print(self.my_hand.hand)
+    #     print(self.bot_hand.hand)
+    #     self.my_hand.hand = self.deck.take_card(6)
+    #     print("v kolode ostalos 1: ", self.deck.len_deck)
+    #     self.bot_hand.hand = self.deck.take_card(6)
+    #     print("v kolode ostalos 2: ", self.deck.len_deck)
+    #     print("my hand under discard")
+    #     print(self.my_hand.hand)
+    #     self.my_hand.discard_card()
+    #     print("my hand after discard")
+    #     print(self.my_hand.hand)
+    #     print("bot hand under discard")
+    #     print(self.bot_hand.hand)
+    #     self.bot_hand.discard_card()
+    #     print("bot hand after discard")
+    #     print(self.bot_hand.hand)
+
+    def start_game(self):
+        self.my_hand = self.deck.take_card(6)
+        print(self.my_hand)
+        print(self.deck.len_deck)
+        self.bot_hand = self.deck.take_card(6)
+        print(self.bot_hand)
+        print(self.deck.len_deck)
+        bot_weight_trump = Hand.check_trump(self.bot_hand)
+        player_weight_trump = Hand.check_trump(self.my_hand)
+        if bot_weight_trump > player_weight_trump:
+            print("First move Bot")
+        else:
+            print("First move player")
+
 d = Deck()
 h = Hand()
-print(d.deck)
-print(d.len_deck)
-print(d.trump_card)
-print(d.take_card())
-print(d.len_deck)
-print(h.check_input_info())
+t = Table()
+# print(d.deck)
+# print(d.len_deck)
+# print(d.trump_card)
+# print(d.take_card(6))
+# print(d.len_deck)
+# print(h.check_input_info())
+# t.test()
+print(t.start_game())
