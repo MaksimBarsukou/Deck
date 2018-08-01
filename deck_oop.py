@@ -68,15 +68,20 @@ class Deck:
 
 
 class Hand:
-    def __init__(self):
+    def __init__(self, trump):
         self.hand = []
-        self.trump = Deck.trump_card
+        self.trump = trump
 
-    def check_trump(self, current_hand):
-        for card in current_hand:
-            if self.trump.trump_card.suit == card.suit:
-                weight_card = max(card.weight)
-                return weight_card
+    def check_trump(self, hand):
+        a = []
+        for card in hand:
+            if self.trump.suit == card.suit:
+                a.append(card.weight)
+        maximum = 0
+        for i in a:
+            if i > maximum:
+                maximum = i
+        return maximum
 
     def card_replenishment(self):
         len_hand = len(self.hand)
@@ -114,9 +119,10 @@ class Hand:
 class Table:
 
     def __init__(self):
+        self.card_storage = []
         self.deck = Deck()
-        self.my_hand = Hand()
-        self.bot_hand = Hand()
+        self.my_hand = Hand(self.deck.trump_card)
+        self.bot_hand = Hand(self.deck.trump_card)
 
     # def test(self):
     #     print(self.my_hand.hand)
@@ -137,25 +143,28 @@ class Table:
     #     print(self.bot_hand.hand)
 
     def start_game(self):
-        self.my_hand = self.deck.take_card(6)
-        print(self.my_hand)
-        print(self.deck.len_deck)
-        self.bot_hand = self.deck.take_card(6)
-        print(self.bot_hand)
-        print(self.deck.len_deck)
-        bot_weight_trump = Hand.check_trump(self.bot_hand)
-        player_weight_trump = Hand.check_trump(self.my_hand)
-        if bot_weight_trump > player_weight_trump:
-            print("First move Bot")
-        else:
-            print("First move player")
+        # self.my_hand.hand = self.deck.take_card(6)
+        # print(self.my_hand.hand)
+        # print(self.deck.len_deck)
+        # self.bot_hand.hand = self.deck.take_card(6)
+        # print(self.bot_hand.hand)
+        # print(self.deck.len_deck)
+        x = self.deck.take_card(6)
+        print(x)
+        self.my_hand.hand = x
+        print(h.check_trump(x))
+        y = self.deck.take_card(6)
+        print(y)
+        self.bot_hand.hand = y
+        print(h.check_trump(y))
+
 
 d = Deck()
-h = Hand()
+h = Hand(d.trump_card)
 t = Table()
-# print(d.deck)
+print(d.deck)
 # print(d.len_deck)
-# print(d.trump_card)
+print(d.trump_card)
 # print(d.take_card(6))
 # print(d.len_deck)
 # print(h.check_input_info())
