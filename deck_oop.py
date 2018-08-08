@@ -33,7 +33,7 @@ class Deck:
         random.shuffle(self.deck)
         new_deck = []
         for card in self.deck:
-            new_deck.append(self.get_card_with_weight(self.deck[-1], card))
+            new_deck.append(self.get_card_with_weight(self.trump_card, card))
         self.deck = new_deck
 
     def get_card_with_weight(self, trump, current_card):
@@ -69,33 +69,42 @@ class Deck:
 
 class Hand:
     def __init__(self, trump):
+        """Initialize an empty hand and a trump card for convenience."""
         self.hand = []
         self.trump = trump
 
     def check_trump(self, hand):
+        """We check the cards in the hand for the presence of trump cards, then find the highest trump."""
         a = []
         for card in hand:
             if self.trump.suit == card.suit:
                 a.append(card.weight)
-        maximum = 0
-        for i in a:
-            if i > maximum:
-                maximum = i
-        return maximum
+        len_a = len(a)
+        if len_a == 1:
+            return a[0]
+        elif len_a == 2 or 3 or 4:
+            s = max(a)
+            return s
+        else:
+            return 0
 
     def card_replenishment(self):
+        """Count the number of missing cards in your hand."""
         len_hand = len(self.hand)
         if len_hand < MAX_NUMBER_CARDS:
             missing_cards = MAX_NUMBER_CARDS - len_hand
             return missing_cards
 
     def discard_card(self):
+        """Remove the card number that entered the user."""
         discard_card = self.check_input_info()
         # Sorting and deleting
         for x in discard_card:
             self.hand.pop(x)
 
     def check_input_info(self):
+        """Enter the card number to delete, and check the data so that
+        they do not go beyond the list and to enter the number."""
         while True:
             try:
                 input_str = input("\n\nEnter card number from 1 to 6 for reset: ")
@@ -117,8 +126,8 @@ class Hand:
 
 
 class Table:
-
     def __init__(self):
+        """Initialize the variables for the playing field."""
         self.card_storage = []
         self.deck = Deck()
         self.my_hand = Hand(self.deck.trump_card)
@@ -150,6 +159,7 @@ class Table:
         # print(self.bot_hand.hand)
         # print(self.deck.len_deck)
         x = self.deck.take_card(6)
+        print(self.my_hand.trump)
         print(x)
         self.my_hand.hand = x
         print(h.check_trump(x))
