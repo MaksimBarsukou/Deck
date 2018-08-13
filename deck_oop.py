@@ -13,7 +13,7 @@ class Card:
 
     def __repr__(self):
         """Calls the function repr to obtain formatted strings."""
-        return '{}{}'.format(self.rank, self.suit)
+        return '{}{}:{}'.format(self.rank, self.suit, self.weight)
 
 
 # ----------------------------------------------------------------------------------------------------
@@ -80,13 +80,13 @@ class Hand:
             if self.trump.suit == card.suit:
                 a.append(card.weight)
         len_a = len(a)
-        if len_a == 1:
-            return a[0]
-        elif len_a == 2 or 3 or 4:
-            s = max(a)
-            return s
-        else:
+        if not a:
             return 0
+        elif len_a == 1:
+            return a[0]
+        else:
+            x = max(a)
+            return x
 
     def card_replenishment(self):
         """Count the number of missing cards in your hand."""
@@ -128,55 +128,42 @@ class Hand:
 class Table:
     def __init__(self):
         """Initialize the variables for the playing field."""
-        self.card_storage = []
         self.deck = Deck()
+        # Так как Hand требует trump для работы  обсчета козырных карт то инициализируем self.hand из класса Hand
+        #  и передаем в него  козырь
+        self.hand = Hand(self.deck.trump_card)
+        self.card_storage = []
         self.my_hand = Hand(self.deck.trump_card)
         self.bot_hand = Hand(self.deck.trump_card)
 
-    # def test(self):
-    #     print(self.my_hand.hand)
-    #     print(self.bot_hand.hand)
-    #     self.my_hand.hand = self.deck.take_card(6)
-    #     print("v kolode ostalos 1: ", self.deck.len_deck)
-    #     self.bot_hand.hand = self.deck.take_card(6)
-    #     print("v kolode ostalos 2: ", self.deck.len_deck)
-    #     print("my hand under discard")
-    #     print(self.my_hand.hand)
-    #     self.my_hand.discard_card()
-    #     print("my hand after discard")
-    #     print(self.my_hand.hand)
-    #     print("bot hand under discard")
-    #     print(self.bot_hand.hand)
-    #     self.bot_hand.discard_card()
-    #     print("bot hand after discard")
-    #     print(self.bot_hand.hand)
+    # переделать функцию
+    def first_move(self):
+        player = self.hand.check_trump(self.my_hand)
+        bot = self.hand.check_trump(self.bot_hand)
+        if player > bot:
+            return "move player"
+        else:
+            return "move bot"
 
     def start_game(self):
-        # self.my_hand.hand = self.deck.take_card(6)
-        # print(self.my_hand.hand)
-        # print(self.deck.len_deck)
-        # self.bot_hand.hand = self.deck.take_card(6)
-        # print(self.bot_hand.hand)
-        # print(self.deck.len_deck)
-        x = self.deck.take_card(6)
-        print(self.my_hand.trump)
-        print(x)
-        self.my_hand.hand = x
-        print(h.check_trump(x))
-        y = self.deck.take_card(6)
-        print(y)
-        self.bot_hand.hand = y
-        print(h.check_trump(y))
+        # дописать цикл while  пока длина деки не  будет пуста, сделать первую раздачу и определить кто ходит первым,
+        # затем сделать логику боя для бота первоначально, если ходит бот то ложит минимальную карту
+        # (карта удаляется из руки  добавляется в хранилище карт) не козырную затем бьется
+        # игрок и сравниваем что бой был правильный, если ход закончен то карты удаляются, если нет отбоя то карты
+        # добавляется в ту руку которая не отбилась.Позже додумать остальное
+        self.my_hand = self.deck.take_card(6)
+        print(self.my_hand)
+        self.bot_hand = self.deck.take_card(6)
+        print(self.bot_hand)
+        # Временный код для проверки правильности отпределения весов козыря.  P.S- позже удалить.
+        x = self.hand.check_trump(self.my_hand)
+        print("my_hand", x)
+        y = self.hand.check_trump(self.bot_hand)
+        print("bot_hand", y)
 
 
-d = Deck()
-h = Hand(d.trump_card)
 t = Table()
-print(d.deck)
-# print(d.len_deck)
-print(d.trump_card)
-# print(d.take_card(6))
-# print(d.len_deck)
-# print(h.check_input_info())
-# t.test()
 print(t.start_game())
+print(t.deck.trump_card)
+print(t.first_move())
+print(t.deck.len_deck)
