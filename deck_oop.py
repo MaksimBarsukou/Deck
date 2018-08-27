@@ -88,6 +88,7 @@ class Hand:
             x = max(a)
             return x
 
+
     def card_replenishment(self):
         """Count the number of missing cards in your hand."""
         len_hand = len(self.hand)
@@ -95,19 +96,18 @@ class Hand:
             missing_cards = MAX_NUMBER_CARDS - len_hand
             return missing_cards
 
-    def discard_card(self):
+    def discard_card(self, discard_card, current_hand):
         """Remove the card number that entered the user."""
-        discard_card = self.check_input_info()
         # Sorting and deleting
         for x in discard_card:
-            self.hand.pop(x)
+            return current_hand.pop(x)
 
     def check_input_info(self):
         """Enter the card number to delete, and check the data so that
         they do not go beyond the list and to enter the number."""
         while True:
             try:
-                input_str = input("\n\nEnter card number from 1 to 6 for reset: ")
+                input_str = input("\n\nEnter card number for reset: ")
                 if not input_str:
                     print("Do not enter anything.")
                     continue
@@ -125,6 +125,8 @@ class Hand:
                 print("You entered a letter.")
 
 
+# --------------------------------------------------------------------------------------------------
+
 class Table:
     def __init__(self):
         """Initialize the variables for the playing field."""
@@ -133,6 +135,7 @@ class Table:
         #  и передаем в него  козырь
         self.hand = Hand(self.deck.trump_card)
         self.card_storage = []
+        self.battle_repository = []
         self.my_hand = Hand(self.deck.trump_card)
         self.bot_hand = Hand(self.deck.trump_card)
 
@@ -140,30 +143,52 @@ class Table:
     def first_move(self):
         player = self.hand.check_trump(self.my_hand)
         bot = self.hand.check_trump(self.bot_hand)
-        if player > bot:
-            return "move player"
+        if player == 0:
+            return 'bot'
+        elif bot == 0:
+            return 'player'
         else:
-            return "move bot"
+            if player > bot:
+                return 'player'
+            else:
+                return 'bot'
+
+    def check_card_on_table(self):
+        first_card = self.battle_repository[0]
+        second_card = self.battle_repository[1]
+        if first_card.suit == second_card.suit:
+            if first_card.weight < second_card.weight:
+                self.card_storage.extend(self.battle_repository)
+                self.card_storage.clear()
+                return "Beat"
+            else:
+                return "Less value"
+        else:
+            return "Improper card suit"
+
 
     def start_game(self):
-        # дописать цикл while  пока длина деки не  будет пуста, сделать первую раздачу и определить кто ходит первым,
-        # затем сделать логику боя для бота первоначально, если ходит бот то ложит минимальную карту
-        # (карта удаляется из руки  добавляется в хранилище карт) не козырную затем бьется
-        # игрок и сравниваем что бой был правильный, если ход закончен то карты удаляются, если нет отбоя то карты
-        # добавляется в ту руку которая не отбилась.Позже додумать остальное
         self.my_hand = self.deck.take_card(6)
         print(self.my_hand)
         self.bot_hand = self.deck.take_card(6)
-        print(self.bot_hand)
-        # Временный код для проверки правильности отпределения весов козыря.  P.S- позже удалить.
-        x = self.hand.check_trump(self.my_hand)
-        print("my_hand", x)
-        y = self.hand.check_trump(self.bot_hand)
-        print("bot_hand", y)
+        if self.first_move() == 'player':
+            a = self.hand.discard_card(self.hand.check_input_info(), self.my_hand)
+            print(self.my_hand)
+            self.battle_repository.append(a)
+        # Если ходит игрок: показать игроку его руку и предложить право первого хода. если ход втрой предлагаем выбор
+        # забрать или бится если забрать то сливаем батл репоситори в руку игрока, если бой то  предлагаем выбрать
+        # карту попутно проверяем её на то что она соответсвует масти покрываемой карты и также что она больше её, иначе
+        # уведомляем о том что карта не та и повторно вызываем выбор карты.
+        # Если ходит бот: выбираем самую меньшую карту из руки не казырную. если бьется сверяем масть покрываемой карты
+        # с картами руки если мась совадает выбираем большую карту чем покрываемая на 1 значение, если масть не
+        # совпадает проверяем руку на наличие козыря и выбирает наименьшую из них.
+        # P.S набросать метод первого хода бота и игрока в функции старт гейм, показать только руку игрока, руку бота
+        #  скрыть, показать козырью, если хоит игрок дать право выбора карты( набросать функцию проверки покрываемой
+        #  карты  игроком.
 
 
 t = Table()
-print(t.start_game())
 print(t.deck.trump_card)
-print(t.first_move())
-print(t.deck.len_deck)
+print(t.start_game())
+print("card storage", t.card_storage)
+print("battle repository", t.battle_repository)
