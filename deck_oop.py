@@ -88,10 +88,9 @@ class Hand:
             x = max(a)
             return x
 
-
-    def card_replenishment(self):
+    def card_replenishment(self, hand):
         """Count the number of missing cards in your hand."""
-        len_hand = len(self.hand)
+        len_hand = len(hand)
         if len_hand < MAX_NUMBER_CARDS:
             missing_cards = MAX_NUMBER_CARDS - len_hand
             return missing_cards
@@ -99,18 +98,20 @@ class Hand:
     def discard_card(self, discard_card, current_hand):
         """Remove the card number that entered the user."""
         # Sorting and deleting
-        for x in discard_card:
-            return current_hand.pop(x)
+        x = discard_card
+        return current_hand.pop(x)
 
     def check_input_info(self):
         """Enter the card number to delete, and check the data so that
         they do not go beyond the list and to enter the number."""
         while True:
             try:
-                input_str = input("\n\nEnter card number for reset: ")
+                input_str = input("\n\nEnter card number or the word 'end' ")
                 if not input_str:
                     print("Do not enter anything.")
                     continue
+                if input_str == 'end':
+                    return 'end'
                 res_list = []
                 for raw_value in input_str:
                     number_card_raw = int(raw_value)
@@ -139,14 +140,12 @@ class Table:
         self.my_hand = Hand(self.deck.trump_card)
         self.bot_hand = Hand(self.deck.trump_card)
 
-    # переделать функцию
     def first_move(self):
         player = self.hand.check_trump(self.my_hand)
         bot = self.hand.check_trump(self.bot_hand)
-        if player == 0:
-            return 'bot'
-        elif bot == 0:
-            return 'player'
+        if player == bot:
+            first_move = list(player, bot)
+            return random.choice(first_move)
         else:
             if player > bot:
                 return 'player'
@@ -159,13 +158,12 @@ class Table:
         if first_card.suit == second_card.suit:
             if first_card.weight < second_card.weight:
                 self.card_storage.extend(self.battle_repository)
-                self.card_storage.clear()
+                self.battle_repository.clear()
                 return "Beat"
             else:
                 return "Less value"
         else:
             return "Improper card suit"
-
 
     def start_game(self):
         self.my_hand = self.deck.take_card(6)
