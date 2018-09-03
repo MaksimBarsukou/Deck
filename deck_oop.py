@@ -111,6 +111,8 @@ class Hand:
                 if not input_str:
                     print("Do not enter anything.")
                     continue
+                if input_str == 'end':
+                    return 'end'
                 res_list = []
                 for raw_value in input_str:
                     number_card_raw = int(raw_value)
@@ -143,10 +145,9 @@ class Table:
     def first_move(self):
         player = self.hand.check_trump(self.my_hand)
         bot = self.hand.check_trump(self.bot_hand)
-        if player == 0:
-            return 'bot'
-        elif bot == 0:
-            return 'player'
+        if player == bot:
+            first_move = list(player, bot)
+            return random.choice(first_move)
         else:
             if player > bot:
                 return 'player'
@@ -175,6 +176,13 @@ class Table:
             a = self.hand.discard_card(self.hand.check_input_info(), self.my_hand)
             print(self.my_hand)
             self.battle_repository.append(a)
+            j = self.battle_repository[0]
+            for card in self.bot_hand:
+                if card.suit == j.suit:
+                    print('совпадает')
+                    if card.rank > j.rank:
+                        print('ранк больше', card.rank)
+
         # Если ходит игрок: показать игроку его руку и предложить право первого хода. если ход втрой предлагаем выбор
         # забрать или бится если забрать то сливаем батл репоситори в руку игрока, если бой то  предлагаем выбрать
         # карту попутно проверяем её на то что она соответсвует масти покрываемой карты и также что она больше её, иначе
