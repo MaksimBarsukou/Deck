@@ -98,8 +98,11 @@ class Hand:
     def discard_card(self, discard_card, current_hand):
         """Remove the card number that entered the user."""
         # Sorting and deleting
-        x = discard_card
-        return current_hand.pop(x)
+        if discard_card != 'end':
+            for x in discard_card:
+                return current_hand.pop(x)
+        else:
+            return 'end'
 
     def check_input_info(self):
         """Enter the card number to delete, and check the data so that
@@ -135,8 +138,8 @@ class Table:
         # Так как Hand требует trump для работы  обсчета козырных карт то инициализируем self.hand из класса Hand
         #  и передаем в него  козырь
         self.hand = Hand(self.deck.trump_card)
-        self.card_storage = []
-        self.battle_repository = []
+        self.card_storage = []  # хранилище 1 игрового хода( 12 карт максимум)
+        self.battle_repository = []  # временное хранилище 1 боя
         self.my_hand = Hand(self.deck.trump_card)
         self.bot_hand = Hand(self.deck.trump_card)
 
@@ -150,7 +153,7 @@ class Table:
             if player > bot:
                 return 'player'
             else:
-                return 'bot'
+                return 'player'
 
     def check_card_on_table(self):
         first_card = self.battle_repository[0]
@@ -167,29 +170,54 @@ class Table:
 
     def start_game(self):
         self.my_hand = self.deck.take_card(6)
+        self.my_hand = sorted(self.my_hand, key=lambda x: x.weight)
         print(self.my_hand)
         self.bot_hand = self.deck.take_card(6)
+        self.bot_hand = sorted(self.bot_hand, key=lambda x: x.weight)
+        print(self.bot_hand)
         if self.first_move() == 'player':
-            a = self.hand.discard_card(self.hand.check_input_info(), self.my_hand)
-            print(self.my_hand)
-            self.battle_repository.append(a)
-            j = self.battle_repository[0]
-            for card in self.bot_hand:
-                if card.suit == j.suit:
-                    print('совпадает')
-                    if card.rank > j.rank:
-                        print('ранк больше', card.rank)
+            while len(self.my_hand) != 0:
+                inp = self.hand.check_input_info()
+                a = self.hand.discard_card(inp, self.my_hand)
+                print(self.my_hand)
+                print(self.bot_hand)
+                self.battle_repository.append(a)
+                j = self.battle_repository[0]
+                for card in self.bot_hand:
+                    if card.suit == j.suit:
+                        print('совпадает')
+                        if card.weight > j.weight:
+                            se = self.bot_hand.index(card)
+                            del self.bot_hand[se]
+                            self.battle_repository.append(card)
+                            print(se)
+                            print('ранк больше')
+                            self.card_storage += self.battle_repository
+                            self.battle_repository.clear()
+                            print("card storage", t.card_storage)
+                            print("battle repository", t.battle_repository)
+                            break
+                        else:
+                            if card.suit == self.deck.trump_card.suit:
+                                self.battle_repository.append(card)
+                                se = self.bot_hand.index(card)
+                                del self.bot_hand[se]
+                                self.card_storage += self.battle_repository
+                                self.battle_repository.clear()
+                                print("card storage", t.card_storage)
+                                print("battle repository", t.battle_repository)
+                                break
+                    else:
+                        if card.suit == self.deck.trump_card.suit:
+                            self.battle_repository.append(card)
+                            se = self.bot_hand.index(card)
+                            del self.bot_hand[se]
+                            self.card_storage += self.battle_repository
+                            self.battle_repository.clear()
+                            print("card storage", t.card_storage)
+                            print("battle repository", t.battle_repository)
+                            break
 
-        # Если ходит игрок: показать игроку его руку и предложить право первого хода. если ход втрой предлагаем выбор
-        # забрать или бится если забрать то сливаем батл репоситори в руку игрока, если бой то  предлагаем выбрать
-        # карту попутно проверяем её на то что она соответсвует масти покрываемой карты и также что она больше её, иначе
-        # уведомляем о том что карта не та и повторно вызываем выбор карты.
-        # Если ходит бот: выбираем самую меньшую карту из руки не казырную. если бьется сверяем масть покрываемой карты
-        # с картами руки если мась совадает выбираем большую карту чем покрываемая на 1 значение, если масть не
-        # совпадает проверяем руку на наличие козыря и выбирает наименьшую из них.
-        # P.S набросать метод первого хода бота и игрока в функции старт гейм, показать только руку игрока, руку бота
-        #  скрыть, показать козырью, если хоит игрок дать право выбора карты( набросать функцию проверки покрываемой
-        #  карты  игроком.
 
 
 t = Table()
