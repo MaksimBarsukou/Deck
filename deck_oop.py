@@ -73,10 +73,10 @@ class Hand:
         self.hand = []
         self.trump = trump
 
-    def check_trump(self, hand):
+    def check_trump(self):
         """We check the cards in the hand for the presence of trump cards, then find the highest trump."""
         a = []
-        for card in hand:
+        for card in self.hand:
             if self.trump.suit == card.suit:
                 a.append(card.weight)
         len_a = len(a)
@@ -88,19 +88,19 @@ class Hand:
             x = max(a)
             return x
 
-    def card_replenishment(self, hand):
+    def card_replenishment(self):
         """Count the number of missing cards in your hand."""
-        len_hand = len(hand)
+        len_hand = len(self.hand)
         if len_hand < MAX_NUMBER_CARDS:
             missing_cards = MAX_NUMBER_CARDS - len_hand
             return missing_cards
 
-    def discard_card(self, discard_card, current_hand):
+    def discard_card(self, discard_card):
         """Remove the card number that entered the user."""
         # Sorting and deleting
         if discard_card != 'end':
             for x in discard_card:
-                return current_hand.pop(x)
+                return self.hand.pop(x)
         else:
             return 'end'
 
@@ -137,17 +137,16 @@ class Table:
         self.deck = Deck()
         # Так как Hand требует trump для работы  обсчета козырных карт то инициализируем self.hand из класса Hand
         #  и передаем в него  козырь
-        self.hand = Hand(self.deck.trump_card)
         self.card_storage = []  # хранилище 1 игрового хода( 12 карт максимум)
         self.battle_repository = []  # временное хранилище 1 боя
         self.my_hand = Hand(self.deck.trump_card)
         self.bot_hand = Hand(self.deck.trump_card)
 
     def first_move(self):
-        player = self.hand.check_trump(self.my_hand)
-        bot = self.hand.check_trump(self.bot_hand)
+        player = self.my_hand.check_trump()
+        bot = self.bot_hand.check_trump()
         if player == bot:
-            first_move = list(player, bot)
+            first_move = 'player', 'bot'
             return random.choice(first_move)
         else:
             if player > bot:
@@ -169,55 +168,59 @@ class Table:
             return "Improper card suit"
 
     def start_game(self):
-        self.my_hand = self.deck.take_card(6)
-        self.my_hand = sorted(self.my_hand, key=lambda x: x.weight)
-        print(self.my_hand)
-        self.bot_hand = self.deck.take_card(6)
-        self.bot_hand = sorted(self.bot_hand, key=lambda x: x.weight)
-        print(self.bot_hand)
+        self.my_hand.hand = sorted(self.deck.take_card(6), key=lambda x: x.weight)
+        print(self.my_hand.hand)
+        self.bot_hand.hand = sorted(self.deck.take_card(6), key=lambda x: x.weight)
+        print(self.bot_hand.hand)
         if self.first_move() == 'player':
-            while len(self.my_hand) != 0:
-                inp = self.hand.check_input_info()
-                a = self.hand.discard_card(inp, self.my_hand)
-                print(self.my_hand)
-                print(self.bot_hand)
+            while len(self.my_hand.hand) != 0:
+                inp = self.my_hand.check_input_info()
+                if inp == 'end':
+                    print('End')
+                    self.my_hand.hand += self.deck.take_card(self.my_hand.card_replenishment())
+                    print(self.my_hand.hand)
+                    self.bot_hand.hand += self.deck.take_card(self.bot_hand.card_replenishment())
+                    print(self.bot_hand.hand)
+                    break
+                a = self.my_hand.discard_card(inp)
                 self.battle_repository.append(a)
                 j = self.battle_repository[0]
-                for card in self.bot_hand:
+                for card in self.bot_hand.hand:
                     if card.suit == j.suit:
                         print('совпадает')
                         if card.weight > j.weight:
-                            se = self.bot_hand.index(card)
-                            del self.bot_hand[se]
+                            self.bot_hand.hand.remove(card)
                             self.battle_repository.append(card)
-                            print(se)
                             print('ранк больше')
                             self.card_storage += self.battle_repository
                             self.battle_repository.clear()
+                            print(self.my_hand.hand)
+                            print(self.bot_hand.hand)
                             print("card storage", t.card_storage)
                             print("battle repository", t.battle_repository)
                             break
                         else:
                             if card.suit == self.deck.trump_card.suit:
                                 self.battle_repository.append(card)
-                                se = self.bot_hand.index(card)
-                                del self.bot_hand[se]
+                                self.bot_hand.hand.remove(card)
                                 self.card_storage += self.battle_repository
                                 self.battle_repository.clear()
+                                print(self.my_hand.hand)
+                                print(self.bot_hand.hand)
                                 print("card storage", t.card_storage)
                                 print("battle repository", t.battle_repository)
                                 break
                     else:
                         if card.suit == self.deck.trump_card.suit:
                             self.battle_repository.append(card)
-                            se = self.bot_hand.index(card)
-                            del self.bot_hand[se]
+                            self.bot_hand.hand.remove(card)
                             self.card_storage += self.battle_repository
                             self.battle_repository.clear()
+                            print(self.my_hand.hand)
+                            print(self.bot_hand.hand)
                             print("card storage", t.card_storage)
                             print("battle repository", t.battle_repository)
                             break
-
 
 
 t = Table()
