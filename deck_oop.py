@@ -154,9 +154,9 @@ class Table:
             else:
                 return 'player'
 
-    def check_card_on_table(self):
+    def check_card_on_table(self, inpt):
         first_card = self.battle_repository[0]
-        second_card = self.battle_repository[1]
+        second_card = self.my_hand.hand[inpt]
         if first_card.suit == second_card.suit:
             if first_card.weight < second_card.weight:
                 self.card_storage.extend(self.battle_repository)
@@ -181,17 +181,27 @@ class Table:
                     print(self.my_hand.hand)
                     self.bot_hand.hand += self.deck.take_card(self.bot_hand.card_replenishment())
                     print(self.bot_hand.hand)
+                    # чтота тут не так
+                    self.card_storage.clear()
+                    first_card_bot = self.bot_hand.hand[0]
+                    print('бот ходит', first_card_bot)
+                    self.battle_repository.append(first_card_bot)
+                    print("card storage", t.card_storage)
+                    print("battle repository", t.battle_repository)
+                    player_inp = self.my_hand.check_input_info()
+                    a = self.my_hand.discard_card(player_inp)
+                    self.battle_repository.append(a)
+                    self.card_storage += self.battle_repository
+                    self.battle_repository.clear()
                     break
                 a = self.my_hand.discard_card(inp)
                 self.battle_repository.append(a)
                 j = self.battle_repository[0]
                 for card in self.bot_hand.hand:
                     if card.suit == j.suit:
-                        print('совпадает')
                         if card.weight > j.weight:
                             self.bot_hand.hand.remove(card)
                             self.battle_repository.append(card)
-                            print('ранк больше')
                             self.card_storage += self.battle_repository
                             self.battle_repository.clear()
                             print(self.my_hand.hand)
