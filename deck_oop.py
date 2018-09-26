@@ -99,8 +99,7 @@ class Hand:
         """Remove the card number that entered the user."""
         # Sorting and deleting
         if discard_card != 'end':
-            for x in discard_card:
-                return self.hand.pop(x)
+            return self.hand.pop(discard_card)
         else:
             return 'end'
 
@@ -113,8 +112,8 @@ class Hand:
                 if not input_str:
                     print("Do not enter anything.")
                     continue
-                if input_str == 'end':
-                    return 'end'
+                if input_str == "end":
+                    return "end"
                 res_list = []
                 for raw_value in input_str:
                     number_card_raw = int(raw_value)
@@ -135,8 +134,6 @@ class Table:
     def __init__(self):
         """Initialize the variables for the playing field."""
         self.deck = Deck()
-        # Так как Hand требует trump для работы  обсчета козырных карт то инициализируем self.hand из класса Hand
-        #  и передаем в него  козырь
         self.card_storage = []  # хранилище 1 игрового хода( 12 карт максимум)
         self.battle_repository = []  # временное хранилище 1 боя
         self.my_hand = Hand(self.deck.trump_card)
@@ -146,95 +143,120 @@ class Table:
         player = self.my_hand.check_trump()
         bot = self.bot_hand.check_trump()
         if player == bot:
-            first_move = 'player', 'bot'
+            first_move = "True", "False"
             return random.choice(first_move)
         else:
             if player > bot:
-                return 'player'
+                return "True"
             else:
-                return 'player'
+                return "False"
 
     def check_card_on_table(self, inpt):
+        for i in inpt:
+            x = i
         first_card = self.battle_repository[0]
-        second_card = self.my_hand.hand[inpt]
+        second_card = self.my_hand.hand[x]
+        trump_card_check = self.deck.trump_card
         if first_card.suit == second_card.suit:
             if first_card.weight < second_card.weight:
-                self.card_storage.extend(self.battle_repository)
-                self.battle_repository.clear()
-                return "Beat"
+                return x
             else:
-                return "Less value"
+                return None
         else:
-            return "Improper card suit"
+            if second_card.suit == trump_card_check.suit:
+                return x
+            else:
+                return None
+
+
+    def update_hand(self):
+        """Update card in hand"""
+        self.my_hand.hand += self.deck.take_card(self.my_hand.card_replenishment())
+        self.bot_hand.hand += self.deck.take_card(self.bot_hand.card_replenishment())
+
+    def append_and_clear_bot_hand(self, card):
+        """Append and clear: battle repository and card storage in bot hand"""
+        self.bot_hand.hand.remove(card)
+        self.battle_repository.append(card)
+        self.card_storage += self.battle_repository
+        self.battle_repository.clear()
+        print(self.my_hand.hand)
+        print(self.bot_hand.hand)
+        print("card storage", t.card_storage)
+        print("battle repository", t.battle_repository)
+
+    def append_and_clear_player_hand(self, player_input):
+        """Append and clear: battle repository and card storage in player hand"""
+        card = self.my_hand.discard_card(player_input)
+        self.battle_repository.append(card)
+        self.card_storage += self.battle_repository
+        self.battle_repository.clear()
+        print(self.my_hand.hand)
+        print(self.bot_hand.hand)
+        print("card storage", t.card_storage)
+        print("battle repository", t.battle_repository)
+
+    def player_logic(self):  # refactoring during
+        """Player logic in one turn"""
+        print(self.my_hand.hand)
+        inpt = self.my_hand.check_input_info()
+        for i in inpt:
+            x = i
+        a = self.my_hand.discard_card(x)
+        self.battle_repository.append(a)
+        j = self.battle_repository[0]
+        for card in self.bot_hand.hand:
+            if card.suit == j.suit:
+                if card.weight > j.weight:
+                    self.append_and_clear_bot_hand(card)
+                    break
+                else:
+                    if card.suit == self.deck.trump_card.suit:
+                        self.append_and_clear_bot_hand(card)
+                        break
+            else:
+                if card.suit == self.deck.trump_card.suit:
+                    self.append_and_clear_bot_hand(card)
+                    break
+
+    def bot_logic(self):  # refactoring
+        """Bot logic in one turn"""
+        self.battle_repository.append(self.bot_hand.hand[0])
+        print("bot move", self.bot_hand.hand[0])
+        self.bot_hand.hand.remove(self.bot_hand.hand[0])
+        print(self.my_hand.hand)
+        player_inp = self.my_hand.check_input_info()
+        x = self.check_card_on_table(player_inp)
+        if type(x) == int:
+            self.append_and_clear_player_hand(x)
+        else:
+            print("Not correct input")
 
     def start_game(self):
         self.my_hand.hand = sorted(self.deck.take_card(6), key=lambda x: x.weight)
-        print(self.my_hand.hand)
         self.bot_hand.hand = sorted(self.deck.take_card(6), key=lambda x: x.weight)
-        print(self.bot_hand.hand)
-        if self.first_move() == 'player':
-            while len(self.my_hand.hand) != 0:
-                inp = self.my_hand.check_input_info()
-                if inp == 'end':
-                    print('End')
-                    self.my_hand.hand += self.deck.take_card(self.my_hand.card_replenishment())
-                    print(self.my_hand.hand)
-                    self.bot_hand.hand += self.deck.take_card(self.bot_hand.card_replenishment())
-                    print(self.bot_hand.hand)
-                    # чтота тут не так
-                    self.card_storage.clear()
-                    first_card_bot = self.bot_hand.hand[0]
-                    print('бот ходит', first_card_bot)
-                    self.battle_repository.append(first_card_bot)
-                    print("card storage", t.card_storage)
-                    print("battle repository", t.battle_repository)
-                    player_inp = self.my_hand.check_input_info()
-                    a = self.my_hand.discard_card(player_inp)
-                    self.battle_repository.append(a)
-                    self.card_storage += self.battle_repository
-                    self.battle_repository.clear()
+        # games logic
+        first = self.first_move()
+        while True:
+            if first:
+                while True:
+                    self.bot_logic()  # bot_logic
+                    print("logic game")
+                    first = False
                     break
-                a = self.my_hand.discard_card(inp)
-                self.battle_repository.append(a)
-                j = self.battle_repository[0]
-                for card in self.bot_hand.hand:
-                    if card.suit == j.suit:
-                        if card.weight > j.weight:
-                            self.bot_hand.hand.remove(card)
-                            self.battle_repository.append(card)
-                            self.card_storage += self.battle_repository
-                            self.battle_repository.clear()
-                            print(self.my_hand.hand)
-                            print(self.bot_hand.hand)
-                            print("card storage", t.card_storage)
-                            print("battle repository", t.battle_repository)
-                            break
-                        else:
-                            if card.suit == self.deck.trump_card.suit:
-                                self.battle_repository.append(card)
-                                self.bot_hand.hand.remove(card)
-                                self.card_storage += self.battle_repository
-                                self.battle_repository.clear()
-                                print(self.my_hand.hand)
-                                print(self.bot_hand.hand)
-                                print("card storage", t.card_storage)
-                                print("battle repository", t.battle_repository)
-                                break
+            else:
+                while True:
+                    x = self.my_hand.check_input_info()
+                    if x == "end":
+                        first = True
+                        self.update_hand()
+                        self.player_logic()
+                        print("logic game player")
+                        break
                     else:
-                        if card.suit == self.deck.trump_card.suit:
-                            self.battle_repository.append(card)
-                            self.bot_hand.hand.remove(card)
-                            self.card_storage += self.battle_repository
-                            self.battle_repository.clear()
-                            print(self.my_hand.hand)
-                            print(self.bot_hand.hand)
-                            print("card storage", t.card_storage)
-                            print("battle repository", t.battle_repository)
-                            break
+                        print("player go")
 
 
 t = Table()
 print(t.deck.trump_card)
 print(t.start_game())
-print("card storage", t.card_storage)
-print("battle repository", t.battle_repository)
