@@ -193,24 +193,32 @@ class Table:
 
     def player_logic(self):  # Games logic of the player.
         """Player logic in one turn"""
-        print(self.my_hand.hand)
-        inpt = self.my_hand.check_input_info()
-        a = self.my_hand.discard_card(inpt)
-        self.battle_repository.append(a)
-        j = self.battle_repository[0]
-        for card in self.bot_hand.hand:
-            if card.suit == j.suit:
-                if card.weight > j.weight:
-                    self.append_and_clear_bot_hand(card)
-                    break
-                else:
-                    if card.suit == self.deck.trump_card.suit:
-                        self.append_and_clear_bot_hand(card)
-                        break
-            else:
-                if card.suit == self.deck.trump_card.suit:
-                    self.append_and_clear_bot_hand(card)
-                    break
+        y = True
+        while y:
+            print(self.my_hand.hand)
+            print(self.bot_hand.hand)
+            inpt = self.my_hand.check_input_info()
+            x = True
+            while x:
+                a = self.my_hand.discard_card(inpt)
+                self.battle_repository.append(a)
+                j = self.battle_repository[0]
+                for card in self.bot_hand.hand:
+                    if card.suit == j.suit:
+                        if card.weight > j.weight:
+                            self.append_and_clear_bot_hand(card)
+                            x = False
+                            break
+                        else:
+                            if card.suit == self.deck.trump_card.suit:
+                                self.append_and_clear_bot_hand(card)
+                                x = False
+                                break
+                    else:
+                        if card.suit == self.deck.trump_card.suit:
+                            self.append_and_clear_bot_hand(card)
+                            x = False
+                            break
 
     def bot_logic(self):  # Games logic of the bot.
         """Bot logic in one turn"""
@@ -225,7 +233,6 @@ class Table:
             print(self.bot_hand.hand)
             print(self.battle_repository)
             print(self.deck.len_deck)
-
             while True:
                 card_player_input = self.my_hand.check_input_info()
                 if card_player_input != "end":
@@ -242,16 +249,30 @@ class Table:
                                         self.bot_hand.hand.remove(cards)
                                         print("{} {}".format("battle repository", self.battle_repository))
                                         print("{} {}".format("Bot puts a card -1", self.battle_repository[0]))
+                                    else:
                                         y = False
                                         break
+                                    break
+
                     else:
                         print("{}".format("Not correct card"))
-                else:
-                    print("{}".format("You got the cards"))
-                    self.update_hand()
-                    print(self.my_hand.hand)
-                    x = False
-                    break
+                else:  # если игрок не отбился, добавляет карты в руку игроку
+                    if self.battle_repository:
+                        self.card_storage.extend(self.battle_repository)
+                        self.my_hand.hand.extend(self.card_storage)
+                        self.battle_repository.clear()
+                        self.card_storage.clear()
+                        self.update_hand()
+                        print(self.my_hand.hand)
+                        print(self.bot_hand.hand)
+                        x = False
+                        break
+                    else:
+                        print("{}".format("You got the cards"))
+                        self.update_hand()
+                        print(self.my_hand.hand)
+                        x = False
+                        break
 
 
 t = Table()
@@ -259,4 +280,4 @@ d = Deck()
 h = Hand(d.trump_card)
 print("{} {}".format("Trump card", t.deck.trump_card))
 print(t.update_hand())
-print(t.bot_logic())
+print(t.player_logic())
