@@ -223,6 +223,8 @@ class Table:
                 else:
                     if not self.battle_repository:
                         self.card_storage.clear()
+                        self.update_hand()
+                        print(self.my_hand.hand)
                         y = False
                         break
                     else:
