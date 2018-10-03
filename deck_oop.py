@@ -197,28 +197,40 @@ class Table:
         while y:
             print(self.my_hand.hand)
             print(self.bot_hand.hand)
-            inpt = self.my_hand.check_input_info()
             x = True
             while x:
-                a = self.my_hand.discard_card(inpt)
-                self.battle_repository.append(a)
-                j = self.battle_repository[0]
-                for card in self.bot_hand.hand:
-                    if card.suit == j.suit:
-                        if card.weight > j.weight:
-                            self.append_and_clear_bot_hand(card)
-                            x = False
-                            break
+                inpt = self.my_hand.check_input_info()
+                if inpt != "end":
+                    a = self.my_hand.discard_card(inpt)
+                    self.battle_repository.append(a)
+                    j = self.battle_repository[0]
+                    for card in self.bot_hand.hand:
+                        if card.suit == j.suit:
+                            if card.weight > j.weight:
+                                self.append_and_clear_bot_hand(card)
+                                x = False
+                                break
+                            else:
+                                if card.suit == self.deck.trump_card.suit:
+                                    self.append_and_clear_bot_hand(card)
+                                    x = False
+                                    break
                         else:
                             if card.suit == self.deck.trump_card.suit:
                                 self.append_and_clear_bot_hand(card)
                                 x = False
                                 break
+                else:
+                    if not self.battle_repository:
+                        self.card_storage.clear()
+                        y = False
+                        break
                     else:
-                        if card.suit == self.deck.trump_card.suit:
-                            self.append_and_clear_bot_hand(card)
-                            x = False
-                            break
+                        print("{}".format("You got the cards"))
+                        self.update_hand()
+                        print(self.my_hand.hand)
+                        y = False
+                        break
 
     def bot_logic(self):  # Games logic of the bot.
         """Bot logic in one turn"""
