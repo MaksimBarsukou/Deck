@@ -97,9 +97,9 @@ class Hand:
         else:
             return 0
 
-    def discard_card(self, discard_card):
-        """Remove the card number that entered the user."""
-        # Sorting and deleting
+    def discard_card(self, discard_card):  # Подумать( как исправить проблему  если аргументом передается
+        """Remove the card number that entered the user."""  # str обьект "end", возможно сделать проверку через
+        # Sorting and deleting                               #  try / except TypeError конструкцию)
         return self.hand.pop(discard_card)
 
     def check_input_info(self):
@@ -128,7 +128,7 @@ class Hand:
 # --------------------------------------------------------------------------------------------------
 
 class Table:
-    def __init__(self):
+    def __init__(self):  # Определить козырную карту в переменную, чтоб не вызывать постонно через метод класса.
         """Initialize the variables for the playing field."""
         self.deck = Deck()
         self.card_storage = []  # Storage 1 game turn (12 cards maximum)
@@ -191,8 +191,21 @@ class Table:
         print("{} {}".format("card storage", self.card_storage))
         print("{} {}".format("battle repository", self.battle_repository))
 
-    def player_logic(self):  # Games logic of the player.
-        """Player logic in one turn"""
+    def what_the_player_threw(self, inpt):  # проверяет что игрок скинул подходящую карту
+        x = True
+        while x:
+            checked_card = [self.my_hand.hand[inpt]]
+            for card in checked_card:
+                for cards in self.card_storage:
+                    if card.rank == cards.rank:
+                        x = True
+                        break
+                    else:
+                        x = False
+            return x  # возвращает состояние X(возможно не в полне корректно)
+
+    def player_logic(self):  # Games logic of the player. Нужные принты обернуть в .format() опционально.
+        """Player logic in one turn"""  # ПРОБЛЕМЫ:  завершить логику для части бота( забирает карты если нечем бить)
         y = True
         while y:
             print(self.my_hand.hand)
@@ -201,11 +214,16 @@ class Table:
             while x:
                 inpt = self.my_hand.check_input_info()
                 if inpt != "end":
+                    if self.card_storage:
+                        if not self.what_the_player_threw(inpt):  # убрать ненужные принты, изменить имена переменных.
+                            print("failed card")
+                            print(self.card_storage)
+                            break
                     a = self.my_hand.discard_card(inpt)
                     self.battle_repository.append(a)
                     j = self.battle_repository[0]
-                    for card in self.bot_hand.hand:
-                        if card.suit == j.suit:
+                    for card in self.bot_hand.hand:  # подумать как переделать логику чтобы бот забирал карты если
+                        if card.suit == j.suit:      # если нечем бится(поправить имена переменных).
                             if card.weight > j.weight:
                                 self.append_and_clear_bot_hand(card)
                                 x = False
@@ -221,8 +239,10 @@ class Table:
                                 x = False
                                 break
                 else:
-                    if not self.battle_repository:
-                        self.card_storage.clear()
+                    if not self.battle_repository:  # добавить корректное завершение хода с обновлением карт в руке
+                        self.card_storage.clear()   # и выводом соответсвенного состояния.
+                        self.update_hand()
+                        print("end round")
                         y = False
                         break
                     else:
@@ -232,9 +252,9 @@ class Table:
                         y = False
                         break
 
-    def bot_logic(self):  # Games logic of the bot.
-        """Bot logic in one turn"""
-        x = True
+    def bot_logic(self):  # Games logic of the bot. Подчистить лишние принты, коректные имена переменных.
+        """Bot logic in one turn"""  # ПРОБЛЕМЫ: Переделать цикл с побрасыванем( подбрасывает все возможные карты,
+        x = True                    # должен подбросить 1 карту и  прерват цикл для перехода ко второму блоку While)
         while x:
             self.battle_repository.clear()
             bot_card = self.bot_hand.hand[0]
@@ -253,7 +273,7 @@ class Table:
                         player_card = self.my_hand.discard_card(card_player_input)
                         self.append_and_clear_player_hand(player_card)
                         y = True
-                        while y:
+                        while y:  # прерывается после второго цикла побрасывания карты(исправить прерывание).
                             for card in self.card_storage:
                                 for cards in self.bot_hand.hand:
                                     if card.rank == cards.rank:
@@ -261,15 +281,15 @@ class Table:
                                         self.bot_hand.hand.remove(cards)
                                         print("{} {}".format("battle repository", self.battle_repository))
                                         print("{} {}".format("Bot puts a card -1", self.battle_repository[0]))
+                                        break
                                     else:
                                         y = False
                                         break
-                                    break
 
                     else:
                         print("{}".format("Not correct card"))
                 else:  # если игрок не отбился, добавляет карты в руку игроку
-                    if self.battle_repository:
+                    if self.battle_repository:  # если забрал продолжить выполнение цикла до отбоя(добавить логику).
                         self.card_storage.extend(self.battle_repository)
                         self.my_hand.hand.extend(self.card_storage)
                         self.battle_repository.clear()
@@ -277,7 +297,6 @@ class Table:
                         self.update_hand()
                         print(self.my_hand.hand)
                         print(self.bot_hand.hand)
-                        x = False
                         break
                     else:
                         print("{}".format("You got the cards"))
