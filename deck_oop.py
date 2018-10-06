@@ -223,7 +223,7 @@ class Table:
                     self.battle_repository.append(a)
                     j = self.battle_repository[0]
                     for card in self.bot_hand.hand:  # подумать как переделать логику чтобы бот забирал карты если
-                        if card.suit == j.suit:      # если нечем бится(поправить имена переменных).
+                        if card.suit == j.suit:  # если нечем бится(поправить имена переменных).
                             if card.weight > j.weight:
                                 self.append_and_clear_bot_hand(card)
                                 x = False
@@ -240,7 +240,7 @@ class Table:
                                 break
                 else:
                     if not self.battle_repository:  # добавить корректное завершение хода с обновлением карт в руке
-                        self.card_storage.clear()   # и выводом соответсвенного состояния.
+                        self.card_storage.clear()  # и выводом соответсвенного состояния.
                         self.update_hand()
                         print("end round")
                         y = False
@@ -254,7 +254,7 @@ class Table:
 
     def bot_logic(self):  # Games logic of the bot. Подчистить лишние принты, коректные имена переменных.
         """Bot logic in one turn"""  # ПРОБЛЕМЫ: Переделать цикл с побрасыванем( подбрасывает все возможные карты,
-        x = True                    # должен подбросить 1 карту и  прерват цикл для перехода ко второму блоку While)
+        x = True  # должен подбросить 1 карту и  прерват цикл для перехода ко второму блоку While)
         while x:
             self.battle_repository.clear()
             bot_card = self.bot_hand.hand[0]
