@@ -280,10 +280,11 @@ class Table:
                                         self.battle_repository.append(cards)
                                         self.bot_hand.hand.remove(cards)
                                         print("{} {}".format("battle repository", self.battle_repository))
-                                        print("{} {}".format("Bot puts a card -1", self.battle_repository[0]))
-                                        x = False
+                                        print("{} {}".format("Bot puts a card", self.battle_repository[0]))
+                                        y = False
                                         break
-                            break
+                                if not y:
+                                    break
                     else:
                         print("{}".format("Not correct card"))
                 else:
@@ -295,7 +296,6 @@ class Table:
                         self.update_hand()
                         print(self.my_hand.hand)
                         print(self.bot_hand.hand)
-                        x = True
                         break
                     else:
                         print("{}".format("You got the cards"))
