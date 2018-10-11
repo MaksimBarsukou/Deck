@@ -186,10 +186,10 @@ class Table:
         self.battle_repository.append(player_input)
         self.card_storage += self.battle_repository
         self.battle_repository.clear()
-        print("{}".format(self.my_hand.hand))
-        print("{}".format(self.bot_hand.hand))
-        print("{} {}".format("card storage", self.card_storage))
-        print("{} {}".format("battle repository", self.battle_repository))
+        print("{}:{}".format("Yours cards", self.my_hand.hand))
+        # print("{}".format(self.bot_hand.hand))
+        # print("{} {}".format("card storage", self.card_storage))
+        # print("{} {}".format("battle repository", self.battle_repository))
 
     def what_the_player_threw(self, inpt):
         x = True
@@ -223,7 +223,7 @@ class Table:
                     self.battle_repository.append(a)
                     j = self.battle_repository[0]
                     for card in self.bot_hand.hand:  # подумать как переделать логику чтобы бот забирал карты если
-                        if card.suit == j.suit:  # если нечем бится(поправить имена переменных).
+                        if card.suit == j.suit:  # если нечем бится,(поправить имена переменных).
                             if card.weight > j.weight:
                                 self.append_and_clear_bot_hand(card)
                                 x = False
@@ -243,6 +243,8 @@ class Table:
                         self.card_storage.clear()  # и выводом соответсвенного состояния.
                         self.update_hand()
                         print("end round")
+                        print(self.my_hand.hand)
+                        print(self.bot_hand.hand)
                         y = False
                         break
                     else:
@@ -252,7 +254,20 @@ class Table:
                         y = False
                         break
 
-    def bot_logic(self):  # Games logic of the bot. Подчистить лишние принты, коректные имена переменных.
+    def throws_cards(self, checked_hand):  # Check what cards can  throw.
+        while True:
+            for card in self.card_storage:
+                for cards in checked_hand:
+                    if card.rank == cards.rank:
+                        self.battle_repository.append(cards)
+                        self.bot_hand.hand.remove(cards)
+                        # print("{} {}".format("battle repository", self.battle_repository))
+                        print("{} {}".format("Puts a card", self.battle_repository[0]))
+                        return True
+            else:
+                return False
+
+    def bot_logic(self):  # Games logic of the bot.
         """Bot logic in one turn"""
         x = True
         while x:
@@ -261,11 +276,14 @@ class Table:
             self.battle_repository.append(bot_card)
             self.bot_hand.hand.remove(bot_card)
             print("{} {}".format("Bot puts a card", self.battle_repository[0]))
-            print("{}".format(self.my_hand.hand))
-            print(self.bot_hand.hand)
-            print(self.battle_repository)
-            print(self.deck.len_deck)
-            while True:
+            print("{}:{}".format("Yours cards", self.my_hand.hand))
+            # print(self.bot_hand.hand)
+            # print(self.battle_repository)
+
+            z = True
+            while z:
+                print("{}:{}".format("Cards left", self.deck.len_deck))
+                print("{}:{}".format("Trump card", self.deck.trump_card.suit))
                 card_player_input = self.my_hand.check_input_info()
                 if card_player_input != "end":
                     x = self.check_card_on_table(card_player_input)
@@ -274,17 +292,15 @@ class Table:
                         self.append_and_clear_player_hand(player_card)
                         y = True
                         while y:
-                            for card in self.card_storage:
-                                for cards in self.bot_hand.hand:
-                                    if card.rank == cards.rank:
-                                        self.battle_repository.append(cards)
-                                        self.bot_hand.hand.remove(cards)
-                                        print("{} {}".format("battle repository", self.battle_repository))
-                                        print("{} {}".format("Bot puts a card", self.battle_repository[0]))
-                                        y = False
-                                        break
-                                if not y:
-                                    break
+                            if self.throws_cards(self.bot_hand.hand):
+                                y = False
+                                break
+                            else:
+                                print("{}".format("End of turn"))
+                                z = False
+                                x = False
+                                self.update_hand()
+                                break
                     else:
                         print("{}".format("Not correct card"))
                 else:
@@ -294,13 +310,13 @@ class Table:
                         self.battle_repository.clear()
                         self.card_storage.clear()
                         self.update_hand()
-                        print(self.my_hand.hand)
-                        print(self.bot_hand.hand)
+                        # print(self.my_hand.hand)
+                        # print(self.bot_hand.hand)
                         break
                     else:
                         print("{}".format("You got the cards"))
                         self.update_hand()
-                        print(self.my_hand.hand)
+                        print("{}:{}".format("Yours cards", self.my_hand.hand))
                         x = False
                         break
 
@@ -310,4 +326,4 @@ d = Deck()
 h = Hand(d.trump_card)
 print("{} {}".format("Trump card", t.deck.trump_card))
 print(t.update_hand())
-print(t.bot_logic())
+print(t.player_logic())
