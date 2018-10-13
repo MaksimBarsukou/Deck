@@ -148,7 +148,7 @@ class Table:
             else:
                 return False
 
-    def check_card_on_table(self, inpt):
+    def check_card_on_table(self, inpt):  # порверяет что игрок отбился корректной картой
         first_card = self.battle_repository[0]
         second_card = self.my_hand.hand[inpt]
         trump_card_check = self.deck.trump_card
@@ -192,17 +192,42 @@ class Table:
         # print("{} {}".format("battle repository", self.battle_repository))
 
     def what_the_player_threw(self, inpt):
-        x = True
-        while x:
+        while True:
             checked_card = [self.my_hand.hand[inpt]]
             for card in checked_card:
                 for cards in self.card_storage:
                     if card.rank == cards.rank:
-                        x = True
-                        break
+                        return True
                     else:
-                        x = False
-            return x
+                        return False
+
+    def bot_beats_cards(self):  # бот бьет карты подкинутые игроком
+        while True:
+            j = self.battle_repository[0]
+            for card in self.bot_hand.hand:
+                if card.suit == j.suit:
+                    if card.weight > j.weight:
+                        self.append_and_clear_bot_hand(card)
+                        return True
+                    else:
+                        if card.suit == self.deck.trump_card.suit:
+                            self.append_and_clear_bot_hand(card)
+                            return True
+                else:
+                    if card.suit == self.deck.trump_card.suit:
+                        self.append_and_clear_bot_hand(card)
+                        return True
+            else:
+                return False
+
+    def can_the_player_throw(self): # проверяет может ли игрок подкинуть карту
+        while True:
+            for card in self.card_storage:
+                for cards in self.my_hand.hand:
+                    if card.rank == cards.rank:
+                        return True
+            else:
+                return False
 
     def player_logic(self):  # Games logic of the player.
         """Player logic in one turn"""
@@ -221,23 +246,13 @@ class Table:
                             break
                     a = self.my_hand.discard_card(inpt)
                     self.battle_repository.append(a)
-                    j = self.battle_repository[0]
-                    for card in self.bot_hand.hand:  # подумать как переделать логику чтобы бот забирал карты если
-                        if card.suit == j.suit:  # если нечем бится,(поправить имена переменных).
-                            if card.weight > j.weight:
-                                self.append_and_clear_bot_hand(card)
-                                x = False
-                                break
-                            else:
-                                if card.suit == self.deck.trump_card.suit:
-                                    self.append_and_clear_bot_hand(card)
-                                    x = False
-                                    break
-                        else:
-                            if card.suit == self.deck.trump_card.suit:
-                                self.append_and_clear_bot_hand(card)
-                                x = False
-                                break
+                    if self.bot_beats_cards():
+                        x = False
+                        break
+                    else:
+                        print("end round")
+                        y = False
+                        break
                 else:
                     if not self.battle_repository:  # добавить корректное завершение хода с обновлением карт в руке
                         self.card_storage.clear()  # и выводом соответсвенного состояния.
@@ -254,10 +269,10 @@ class Table:
                         y = False
                         break
 
-    def throws_cards(self, checked_hand):  # Check what cards can  throw.
+    def throws_cards(self):  # Check what cards can  throw.
         while True:
             for card in self.card_storage:
-                for cards in checked_hand:
+                for cards in self.bot_hand.hand:
                     if card.rank == cards.rank:
                         self.battle_repository.append(cards)
                         self.bot_hand.hand.remove(cards)
@@ -292,7 +307,7 @@ class Table:
                         self.append_and_clear_player_hand(player_card)
                         y = True
                         while y:
-                            if self.throws_cards(self.bot_hand.hand):
+                            if self.throws_cards():
                                 y = False
                                 break
                             else:
