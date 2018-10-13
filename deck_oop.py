@@ -192,14 +192,17 @@ class Table:
         # print("{} {}".format("battle repository", self.battle_repository))
 
     def what_the_player_threw(self, inpt):
-        while True:
+        x = True
+        while x:
             checked_card = [self.my_hand.hand[inpt]]
             for card in checked_card:
                 for cards in self.card_storage:
                     if card.rank == cards.rank:
-                        return True
+                        x = True
+                        break
                     else:
-                        return False
+                        x = False
+            return x
 
     def bot_beats_cards(self):  # бот бьет карты подкинутые игроком
         while True:
@@ -237,6 +240,11 @@ class Table:
             print(self.bot_hand.hand)
             x = True
             while x:
+                if self.can_the_player_throw():  # должен проверить возможность игрока подкинуть карты, если может
+                    print("found")  # запустить основной цикл, если нет завершить игровой ход
+                else:
+                    print("not found")
+
                 inpt = self.my_hand.check_input_info()
                 if inpt != "end":
                     if self.card_storage:
@@ -250,7 +258,7 @@ class Table:
                         x = False
                         break
                     else:
-                        print("end round")
+                        print("end round")  # должен забирать карты пополнять руку и перезапускать цикл
                         y = False
                         break
                 else:
