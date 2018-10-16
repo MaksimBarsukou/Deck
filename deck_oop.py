@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: <encoding name> -*-
 import random
 
 MAX_NUMBER_CARDS = 6
@@ -176,10 +178,10 @@ class Table:
         self.bot_hand.hand.remove(card)
         self.card_storage += self.battle_repository
         self.battle_repository.clear()
-        print("{}".format(self.my_hand.hand))
-        print("{}".format(self.bot_hand.hand))
+        # print("{}".format(self.my_hand.hand))
+        # print("{}".format(self.bot_hand.hand))
         print("{} {}".format("card storage", self.card_storage))
-        print("{} {}".format("battle repository", self.battle_repository))
+        # print("{} {}".format("battle repository", self.battle_repository))
 
     def append_and_clear_player_hand(self, player_input):
         """Append and clear: battle repository and card storage in player hand"""
@@ -223,7 +225,7 @@ class Table:
             else:
                 return False
 
-    def can_the_player_throw(self): # проверяет может ли игрок подкинуть карту
+    def can_the_player_throw(self):  # проверяет может ли игрок подкинуть карту
         while True:
             for card in self.card_storage:
                 for cards in self.my_hand.hand:
@@ -240,16 +242,22 @@ class Table:
             print(self.bot_hand.hand)
             x = True
             while x:
-                if self.can_the_player_throw():  # должен проверить возможность игрока подкинуть карты, если может
-                    print("found")  # запустить основной цикл, если нет завершить игровой ход
-                else:
-                    print("not found")
-
+                if self.card_storage:
+                    if self.can_the_player_throw():  # должен проверить возможность игрока подкинуть карты, если может
+                        print("Есть чем подкинуть")  # запустить основной цикл, если нет завершить игровой ход
+                    else:
+                        y = False
+                        self.card_storage.clear()  # и выводом соответсвенного состояния.
+                        self.update_hand()
+                        print("нечем подкинуть")
+                        print(self.my_hand.hand)
+                        print(self.bot_hand.hand)
+                        break
                 inpt = self.my_hand.check_input_info()
                 if inpt != "end":
                     if self.card_storage:
                         if not self.what_the_player_threw(inpt):  # убрать ненужные принты.
-                            print("failed card")
+                            print("неверная карта")
                             print(self.card_storage)
                             break
                     a = self.my_hand.discard_card(inpt)
@@ -258,24 +266,23 @@ class Table:
                         x = False
                         break
                     else:
-                        print("end round")  # должен забирать карты пополнять руку и перезапускать цикл
-                        y = False
+                        self.card_storage.extend(self.battle_repository)
+                        self.bot_hand.hand.extend(self.card_storage)
+                        self.battle_repository.clear()
+                        self.card_storage.clear()
+                        self.update_hand()
+                        print("{}".format("Бот не отбился и забрал карты"))
+                        x = False
                         break
                 else:
-                    if not self.battle_repository:  # добавить корректное завершение хода с обновлением карт в руке
-                        self.card_storage.clear()  # и выводом соответсвенного состояния.
-                        self.update_hand()
-                        print("end round")
-                        print(self.my_hand.hand)
-                        print(self.bot_hand.hand)
-                        y = False
-                        break
-                    else:
-                        print("{}".format("You got the cards"))
-                        self.update_hand()
-                        print(self.my_hand.hand)
-                        y = False
-                        break
+                    print("игрок заканчивает ход")
+                    self.battle_repository.clear()
+                    self.card_storage.clear()
+                    self.update_hand()
+                    print(self.my_hand.hand)
+                    print(self.bot_hand.hand)
+                    y = False
+                    break
 
     def throws_cards(self):  # Check what cards can  throw.
         while True:
@@ -344,9 +351,25 @@ class Table:
                         break
 
 
-t = Table()
-d = Deck()
-h = Hand(d.trump_card)
-print("{} {}".format("Trump card", t.deck.trump_card))
-print(t.update_hand())
-print(t.player_logic())
+class game():
+    def main(self):
+        t = Table()
+        t.update_hand()
+        d = Deck()
+        h = Hand(d.trump_card)
+        x = d.len_deck
+        while x > 0:
+            if t.first_move_on_table():
+                t.player_logic()
+                t.bot_logic()
+            else:
+                t.bot_logic()
+                t.player_logic()
+
+
+if __name__ == '__main__':
+    game().main()
+
+
+
+
