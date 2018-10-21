@@ -1,7 +1,9 @@
-#!/usr/bin/python
-# -*- coding: <encoding name> -*-
+#!/usr/bin/python3
 import random
+import logging
 
+logging.basicConfig(filename="logs.log", level=logging.DEBUG,
+                    format=u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s')
 MAX_NUMBER_CARDS = 6
 MIN_NUMBER_CARDS = 0
 
@@ -111,6 +113,7 @@ class Hand:
                 input_str = input("\nEnter card number or the word 'end' ")
                 if not input_str:
                     print("Do not enter anything.")
+                    logging.error("Do not enter anything.")
                     continue
                 if input_str == "end":
                     return "end"
@@ -122,8 +125,10 @@ class Hand:
                 return number_card_raw
             except IndexError:
                 print("Out of range.")
+                logging.error("Out of range.")
             except ValueError:
                 print("You entered a letter.")
+                logging.error("You entered a letter.")
 
 
 # --------------------------------------------------------------------------------------------------
@@ -142,6 +147,7 @@ class Table:
             trump_card_on_table = self.deck.trump_card
             return trump_card_on_table
         except IndexError:
+            logging.error("Out of range.")
             return "Карт нет"
 
     def first_move_on_table(self):
@@ -317,7 +323,6 @@ class Table:
             self.battle_repository.append(bot_card)
             self.bot_hand.hand.remove(bot_card)
             print("Бот кладёт карту {}".format(self.battle_repository[0]))
-            print(self.bot_hand.hand)
             print("Ваши карты: {}".format(",".join(str(i) for i in self.my_hand.hand)))
             z = True
             while z:
