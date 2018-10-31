@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 import random
 import logging
-
 logging.basicConfig(filename="logs.log", level=logging.DEBUG,
                     format=u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s')
 MAX_NUMBER_CARDS = 6
@@ -144,7 +143,7 @@ class Table:
 
     def trump_card_on_table(self):
         try:
-            trump_card_on_table = self.deck.trump_card
+            trump_card_on_table = self.bot_hand.trump
             return trump_card_on_table
         except IndexError:
             logging.error("Out of range.")
@@ -169,7 +168,7 @@ class Table:
          then check that the player’s card is higher than the card he hits."""
         first_card = self.battle_repository[0]
         second_card = self.my_hand.hand[inpt]
-        trump_card_check = self.deck.trump_card
+        trump_card_check = self.bot_hand.trump
         if first_card.suit == second_card.suit:
             if first_card.weight < second_card.weight:
                 return True
@@ -221,7 +220,7 @@ class Table:
 
     def bot_beats_cards(self):  # логика (бот бьет карты подкинутые игроком)
         """The logic of the bot in which he beats the player's cards."""
-        temp_trump_card = self.deck.trump_card
+        temp_trump_card = self.bot_hand.trump
         j = self.battle_repository[0]
         for card in self.bot_hand.hand:
             if card.suit == j.suit:
@@ -309,7 +308,6 @@ class Table:
                     self.battle_repository.append(cards)
                     self.bot_hand.hand.remove(cards)
                     print("Бот кладёт карту {}".format(self.battle_repository[0]), end='\n\n')
-                    print(self.bot_hand.hand)
                     return True
         else:
             return False
@@ -319,9 +317,12 @@ class Table:
         x = True
         while x:
             self.battle_repository.clear()
-            bot_card = self.bot_hand.hand[0]
-            self.battle_repository.append(bot_card)
-            self.bot_hand.hand.remove(bot_card)
+            try:
+                bot_card = self.bot_hand.hand[0]
+                self.battle_repository.append(bot_card)
+                self.bot_hand.hand.remove(bot_card)
+            except IndexError:
+                    return "END GAME"
             print("Бот кладёт карту {}".format(self.battle_repository[0]))
             print("Ваши карты: {}".format(",".join(str(i) for i in self.my_hand.hand)))
             z = True
@@ -330,8 +331,8 @@ class Table:
                 print("Козырь: {}".format(self.trump_card_on_table()))
                 card_player_input = self.my_hand.check_input_info()
                 if card_player_input != "end":
-                    x = self.check_card_on_table(card_player_input)
-                    if x is True:
+                    k = self.check_card_on_table(card_player_input)
+                    if k is True:
                         player_card = self.my_hand.discard_card(card_player_input)
                         self.append_and_clear_player_hand(player_card)
                         y = True
@@ -348,7 +349,7 @@ class Table:
                                 self.card_storage.clear()
                                 break
                     else:
-                        print("Неверная карта.", end='\n\n')
+                        print("Неверная карта.", end='\n')
                         print("Бот кладёт карту {}".format(self.battle_repository[0]))
                         print("Ваши карты: {}".format(",".join(str(i) for i in self.my_hand.hand)))
                         print("Карты на столе: {}".format(",".join(str(i) for i in self.card_storage)))
@@ -358,6 +359,8 @@ class Table:
                         self.pick_up_cards(self.my_hand.hand)
                         print("Вы забираете карты.")
                         break
+                    else:
+                        break
 
 
 # --------------------------------------------------------------------------------------------------
@@ -365,15 +368,18 @@ class Table:
 def main():
     t = Table()
     t.update_hand()
-    d = Deck()
-    x = d.len_deck
+    x = t.deck.len_deck
     if t.first_move_on_table():
         while x > 0:
             t.player_logic()
-            t.bot_logic()
+            if t.bot_logic() == "END GAME":
+                print('Game win bot')
+                return False
     else:
         while x > 0:
-            t.bot_logic()
+            if t.bot_logic() == "END GAME":
+                print('Game win bot')
+                return False
             t.player_logic()
 
 
