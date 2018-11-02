@@ -16,12 +16,12 @@ class CardTest(unittest.TestCase):
 
     def test_check_init2(self):
         self.assertEqual(self.card.suit, self.suit)
-        self.assertNotEqual(self.card.rank, self.rank)
+        self.assertEqual(self.card.rank, self.rank)
         self.assertIsNone(self.card.weight)
 
     def test_check_init3(self):
         self.assertEqual(self.card.suit, self.suit)
-        self.assertEqual(self.card.rank, str(self.rank))
+        self.assertNotEqual(self.card.rank, str(self.rank))
         self.assertIsNone(self.card.weight)
 
     def test_check_weight(self):

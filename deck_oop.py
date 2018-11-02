@@ -19,7 +19,7 @@ class Card:
         return '{}{}'.format(self.rank, self.suit)
 
 
-# ----------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 
 
 class Deck:
@@ -34,9 +34,10 @@ class Deck:
             for rank in self.RANK:
                 self.deck.append(Card(suit, rank, self.WEIGHT[rank]))
         random.shuffle(self.deck)
+        self.trump = self.deck[-1]
         new_deck = []
         for card in self.deck:
-            new_deck.append(self.get_card_with_weight(self.trump_card, card))
+            new_deck.append(self.get_card_with_weight(self.trump, card))
         self.deck = new_deck
 
     def get_card_with_weight(self, trump, current_card):
@@ -47,11 +48,11 @@ class Deck:
         current_card.weight = self.WEIGHT[current_card.rank]
         return current_card
 
-    @property
-    def trump_card(self):
-        """Determine trump (just take the last card)."""
-        card = self.deck[-1]
-        return card
+    # @property
+    # def trump_card(self):
+    #     """Determine trump (just take the last card)."""
+    #     card = self.deck[-1]
+    #     return card
 
     @property
     def len_deck(self):
@@ -67,29 +68,13 @@ class Deck:
         return cards
 
 
-# --------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 
 
 class Hand:
-    def __init__(self, trump):
-        """Initialize an empty hand and a trump card for convenience."""
+    def __init__(self):
+        """Initialize an empty hand ."""
         self.hand = []
-        self.trump = trump
-
-    def check_trump(self):
-        """We check the cards in the hand for the presence of trump cards, then find the highest trump."""
-        a = []
-        for card in self.hand:
-            if self.trump.suit == card.suit:
-                a.append(card.weight)
-        len_a = len(a)
-        if not a:
-            return 0
-        elif len_a == 1:
-            return a[0]
-        else:
-            x = max(a)
-            return x
 
     def card_replenishment(self):
         """Count the number of missing cards in your hand."""
@@ -130,7 +115,7 @@ class Hand:
                 logging.error("You entered a letter.")
 
 
-# --------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 
 class Table:
     def __init__(self):
@@ -138,12 +123,27 @@ class Table:
         self.deck = Deck()
         self.card_storage = []  # Storage 1 game turn (12 cards maximum)
         self.battle_repository = []  # Temporary storage of 1 battle
-        self.my_hand = Hand(self.deck.trump_card)
-        self.bot_hand = Hand(self.deck.trump_card)
+        self.my_hand = Hand()
+        self.bot_hand = Hand()
+
+    def check_trump(self, hand):
+        """We check the cards in the hand for the presence of trump cards, then find the highest trump."""
+        a = []
+        for card in hand:
+            if self.deck.trump.suit == card.suit:
+                a.append(card.weight)
+        len_a = len(a)
+        if not a:
+            return 0
+        elif len_a == 1:
+            return a[0]
+        else:
+            x = max(a)
+            return x
 
     def trump_card_on_table(self):
         try:
-            trump_card_on_table = self.bot_hand.trump
+            trump_card_on_table = self.deck.trump
             return trump_card_on_table
         except IndexError:
             logging.error("Out of range.")
@@ -152,8 +152,8 @@ class Table:
     def first_move_on_table(self):
         """We compare the most big cards in the player’s hand and the bot’s hand,
          and determine which of them goes first by finding the larger card."""
-        player = self.my_hand.check_trump()
-        bot = self.bot_hand.check_trump()
+        player = self.check_trump(self.my_hand.hand)
+        bot = self.check_trump(self.bot_hand.hand)
         if player == bot:
             first_move = True, False
             return random.choice(first_move)
@@ -168,7 +168,7 @@ class Table:
          then check that the player’s card is higher than the card he hits."""
         first_card = self.battle_repository[0]
         second_card = self.my_hand.hand[inpt]
-        trump_card_check = self.bot_hand.trump
+        trump_card_check = self.deck.trump
         if first_card.suit == second_card.suit:
             if first_card.weight < second_card.weight:
                 return True
@@ -220,7 +220,7 @@ class Table:
 
     def bot_beats_cards(self):  # логика (бот бьет карты подкинутые игроком)
         """The logic of the bot in which he beats the player's cards."""
-        temp_trump_card = self.bot_hand.trump
+        temp_trump_card = self.deck.trump
         j = self.battle_repository[0]
         for card in self.bot_hand.hand:
             if card.suit == j.suit:
@@ -363,7 +363,7 @@ class Table:
                         break
 
 
-# --------------------------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------------------------------------------
 
 def main():
     t = Table()
