@@ -1,8 +1,19 @@
 #!/usr/bin/python3
+import sys
 import random
 import logging
-logging.basicConfig(filename="logs.log", level=logging.DEBUG,
-                    format=u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s')
+import deck_oop_sql
+
+# логгер для сбора сообщений об ошибках
+file_handler = logging.FileHandler(filename="logs.log")
+format_file = logging.Formatter(u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s')
+file_handler.setFormatter(format_file)
+stdout_handler = logging.StreamHandler(sys.stdout)
+format_stdout = logging.Formatter(u'%(message)s')
+stdout_handler.setFormatter(format_stdout)
+handlers = [file_handler, stdout_handler]
+logging.basicConfig(level=logging.DEBUG, handlers=handlers)
+
 MAX_NUMBER_CARDS = 6
 MIN_NUMBER_CARDS = 0
 
@@ -48,12 +59,6 @@ class Deck:
         current_card.weight = self.WEIGHT[current_card.rank]
         return current_card
 
-    # @property
-    # def trump_card(self):
-    #     """Determine trump (just take the last card)."""
-    #     card = self.deck[-1]
-    #     return card
-
     @property
     def len_deck(self):
         """Determine the size of the deck by counting the number of cards in it."""
@@ -96,7 +101,6 @@ class Hand:
             try:
                 input_str = input("\nEnter card number or the word 'end' ")
                 if not input_str:
-                    print("Do not enter anything.")
                     logging.error("Do not enter anything.")
                     continue
                 if input_str == "end":
@@ -108,10 +112,8 @@ class Hand:
                     number_card_raw -= 1
                 return number_card_raw
             except IndexError:
-                print("Out of range.")
                 logging.error("Out of range.")
             except ValueError:
-                print("You entered a letter.")
                 logging.error("You entered a letter.")
 
 
@@ -140,14 +142,6 @@ class Table:
         else:
             x = max(a)
             return x
-
-    def trump_card_on_table(self):
-        try:
-            trump_card_on_table = self.deck.trump
-            return trump_card_on_table
-        except IndexError:
-            logging.error("Out of range.")
-            return "Карт нет"
 
     def first_move_on_table(self):
         """We compare the most big cards in the player’s hand and the bot’s hand,
@@ -263,18 +257,21 @@ class Table:
         while y:
             print("Ваши карты: {}".format(",".join(str(i) for i in self.my_hand.hand)))
             print("Карт осталось: {}".format(self.deck.len_deck))
-            print("Козырь: {}".format(self.trump_card_on_table()))
+            print("Козырь: {}".format(self.deck.trump))
             x = True
             while x:
                 if self.card_storage:
                     if self.can_the_player_throw():
                         print("Вы можете подкинуть карту.")
                     else:
-                        y = False
-                        self.card_storage.clear()
-                        self.update_hand()
-                        print("Конец хода игрока.", end='\n\n')
-                        break
+                        if self.deck.len_deck == 0 and len(self.my_hand.hand) == 0:
+                            return "END GAME"
+                        else:
+                            y = False
+                            self.card_storage.clear()
+                            self.update_hand()
+                            print("Конец хода игрока.\n------------------------------")
+                            break
                 inpt = self.my_hand.check_input_info()
                 if inpt != "end":
                     if self.card_storage:
@@ -289,11 +286,11 @@ class Table:
                         break
                     else:  # Если бот забрает карты
                         self.pick_up_cards(self.bot_hand.hand)
-                        print("Бот не отбился и забрал карты.", end='\n\n')
+                        print("Бот не отбился и забрал карты.\n------------------------------")
                         x = False
                         break
                 else:
-                    print("Игрок заканчивает ход.")
+                    print("Игрок заканчивает ход.\n------------------------------")
                     self.battle_repository.clear()
                     self.card_storage.clear()
                     self.update_hand()
@@ -307,7 +304,7 @@ class Table:
                 if card.rank == cards.rank:
                     self.battle_repository.append(cards)
                     self.bot_hand.hand.remove(cards)
-                    print("Бот кладёт карту {}".format(self.battle_repository[0]), end='\n\n')
+                    print("Бот кладёт карту {}".format(self.battle_repository[0]))
                     return True
         else:
             return False
@@ -322,13 +319,13 @@ class Table:
                 self.battle_repository.append(bot_card)
                 self.bot_hand.hand.remove(bot_card)
             except IndexError:
-                    return "END GAME"
+                return "END GAME"
             print("Бот кладёт карту {}".format(self.battle_repository[0]))
             print("Ваши карты: {}".format(",".join(str(i) for i in self.my_hand.hand)))
             z = True
             while z:
                 print("Карт осталось: {}".format(self.deck.len_deck))
-                print("Козырь: {}".format(self.trump_card_on_table()))
+                print("Козырь: {}".format(self.deck.trump))
                 card_player_input = self.my_hand.check_input_info()
                 if card_player_input != "end":
                     k = self.check_card_on_table(card_player_input)
@@ -342,14 +339,14 @@ class Table:
                                 y = False
                                 break
                             else:
-                                print("Конец хода бота.", end='\n\n')
+                                print("Конец хода бота.\n------------------------------")
                                 z = False
                                 x = False
                                 self.update_hand()
                                 self.card_storage.clear()
                                 break
                     else:
-                        print("Неверная карта.", end='\n')
+                        print("Неверная карта.", end='\n\n')
                         print("Бот кладёт карту {}".format(self.battle_repository[0]))
                         print("Ваши карты: {}".format(",".join(str(i) for i in self.my_hand.hand)))
                         print("Карты на столе: {}".format(",".join(str(i) for i in self.card_storage)))
@@ -357,7 +354,7 @@ class Table:
                 else:  # если игрок забирает карты
                     if self.battle_repository:
                         self.pick_up_cards(self.my_hand.hand)
-                        print("Вы забираете карты.")
+                        print("Вы забираете карты.\n------------------------------")
                         break
                     else:
                         break
@@ -366,21 +363,29 @@ class Table:
 # ---------------------------------------------------------------------------------------------------------------------
 
 def main():
-    t = Table()
-    t.update_hand()
-    x = t.deck.len_deck
-    if t.first_move_on_table():
+    t = Table()  # инициализируем класс поля
+    t.update_hand()  # пополняем руку игрока и бота
+    x = t.deck.len_deck  # получаем количество оставшихся карт
+    if t.first_move_on_table():  # определяем кто ходит первый
+        while x > 0:  # если игрок
+            if t.player_logic() == "END GAME":  # если победил игрок
+                print('Game win Player')
+                deck_oop_sql.log_winner('True')  # вызываем ипортированную функцию добавления информации в базу
+                break
+            if t.bot_logic() == "END GAME":  # если победил бот
+                print('Game win bot')
+                deck_oop_sql.log_winner('False')  # вызываем ипортированную функцию добавления информации в базу
+                break
+    else:  # если бот
         while x > 0:
-            t.player_logic()
             if t.bot_logic() == "END GAME":
                 print('Game win bot')
-                return False
-    else:
-        while x > 0:
-            if t.bot_logic() == "END GAME":
-                print('Game win bot')
-                return False
-            t.player_logic()
+                deck_oop_sql.log_winner('False')
+                break
+            if t.player_logic() == "END GAME":
+                deck_oop_sql.log_winner('True')
+                print('Game win Player')
+                break
 
 
 if __name__ == '__main__':
